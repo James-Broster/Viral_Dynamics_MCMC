@@ -3,14 +3,17 @@ from scipy.stats import norm
 from statsmodels.tsa.stattools import acf
 from multiprocessing import Pool
 from tqdm import tqdm
+import config
 
-from virus_model import VirusModel
-from constants import PARAM_NAMES, PARAM_BOUNDS, STEP_SIZES
+
+from virus_model import cached_solve
+from config import PARAM_NAMES, PARAM_BOUNDS, STEP_SIZES
+
 
 class ModelFitting:
     @staticmethod
     def calculate_log_likelihood(parameters, time, observed_data, sigma):
-        model_data = VirusModel.solve(parameters, time)
+        model_data = cached_solve(parameters, time)
         model_log_virusload = model_data[:, 2].reshape(-1, 1)
         residuals = observed_data - model_log_virusload
         n = len(observed_data)
@@ -19,7 +22,7 @@ class ModelFitting:
 
     @staticmethod
     def calculate_model_error(parameters, time, observed_data):
-        model_data = VirusModel.solve(parameters, time)
+        model_data = cached_solve(parameters, time)
         model_log_virusload = model_data[:, 2].reshape(-1, 1)
         residuals = observed_data - model_log_virusload
         error = np.sqrt(np.mean(residuals**2))

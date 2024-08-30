@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.integrate import odeint
+import functools
 
 class VirusModel:
     @staticmethod
@@ -12,7 +13,9 @@ class VirusModel:
         return [df1_dt, df2_dt, dV_dt]
 
     @staticmethod
-    def solve(parameters, time, epsilon=0, t_star=0):
+    @functools.lru_cache(maxsize=10000)
+    def _solve_cached(parameters, time_tuple, epsilon=0, t_star=0):
+        time = np.array(time_tuple)
         alpha_f, beta, delta_f, gamma, f2_0, V_0 = parameters
         f1_0 = 1 - f2_0  # Ensure f1 + f2 = 1
         initial_conditions = [f1_0, f2_0, V_0]
@@ -22,3 +25,14 @@ class VirusModel:
         log_V = np.log10(np.maximum(V, 1e-300))
         result = np.column_stack((solution[:, :2], log_V))
         return result
+
+    @staticmethod
+    def solve(parameters, time, epsilon=0, t_star=0):
+        # Convert numpy arrays to tuples for hashing
+        parameters_tuple = tuple(parameters)
+        time_tuple = tuple(time)
+        return VirusModel._solve_cached(parameters_tuple, time_tuple, epsilon, t_star)
+
+# Wrapper function to handle non-hashable numpy arrays
+def cached_solve(params, time, epsilon=0, t_star=0):
+    return VirusModel.solve(params, time, epsilon, t_star)

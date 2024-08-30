@@ -1,0 +1,764 @@
+{
+  "shapes": {
+    "all_viral_loads": [
+      [
+        801,
+        301
+      ],
+      [
+        801,
+        301
+      ],
+      [
+        801,
+        301
+      ],
+      [
+        801,
+        301
+      ]
+    ]
+  },
+  "structure": {
+    "3": {
+      "0": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "1": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "2": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "3": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "4": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "5": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "6": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "7": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "8": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "9": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "10": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "11": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "12": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "13": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "14": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "15": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "16": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "17": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "18": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "19": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "20": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "21": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "22": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "23": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "24": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "25": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "26": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "27": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "28": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "29": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "30": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ]
+    },
+    "4": {
+      "0": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "1": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "2": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "3": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "4": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "5": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "6": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "7": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "8": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "9": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "10": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "11": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "12": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "13": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "14": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "15": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "16": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "17": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "18": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "19": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "20": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "21": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "22": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "23": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "24": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "25": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "26": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "27": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "28": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "29": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "30": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ]
+    },
+    "5": {
+      "0": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "1": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "2": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "3": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "4": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "5": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "6": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "7": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "8": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "9": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "10": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "11": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "12": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "13": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "14": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "15": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "16": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "17": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "18": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "19": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "20": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "21": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "22": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "23": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "24": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "25": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "26": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "27": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "28": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "29": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ],
+      "30": [
+        "days_unnecessarily_isolated",
+        "days_above_threshold_post_release",
+        "proportion_above_threshold_at_release",
+        "proportion_below_threshold_at_release",
+        "risk_score"
+      ]
+    }
+  },
+  "sample_data": {
+    "threshold_3_period_0": {
+      "days_unnecessarily_isolated": {
+        "avg": 0.0,
+        "ci_lower": 0.0,
+        "ci_upper": 0.0
+      },
+      "days_above_threshold_post_release": {
+        "avg": 10.90043695380774,
+        "ci_lower": 1.0,
+        "ci_upper": 27.924999999999727
+      },
+      "proportion_above_threshold_at_release": {
+        "avg": 1.0,
+        "ci_lower": 1.0,
+        "ci_upper": 1.0
+      },
+      "proportion_below_threshold_at_release": {
+        "avg": 0.0,
+        "ci_lower": 0.0,
+        "ci_upper": 0.0
+      },
+      "risk_score": {
+        "avg": 22.482402812207,
+        "ci_lower": 2.6044961734037972,
+        "ci_upper": 49.87796507700607
+      }
+    },
+    "threshold_3_period_15": {
+      "days_unnecessarily_isolated": {
+        "avg": 4.963171036204744,
+        "ci_lower": 0.0,
+        "ci_upper": 14.0
+      },
+      "days_above_threshold_post_release": {
+        "avg": 0.8636079900124844,
+        "ci_lower": 0.0,
+        "ci_upper": 12.924999999999727
+      },
+      "proportion_above_threshold_at_release": {
+        "avg": 0.1956928838951311,
+        "ci_lower": 0.0,
+        "ci_upper": 1.0
+      },
+      "proportion_below_threshold_at_release": {
+        "avg": 0.8043071161048689,
+        "ci_lower": 0.0,
+        "ci_upper": 1.0
+      },
+      "risk_score": {
+        "avg": 0.8384372433231752,
+        "ci_lower": 0.0,
+        "ci_upper": 11.044482814910797
+      }
+    },
+    "threshold_3_period_30": {
+      "days_unnecessarily_isolated": {
+        "avg": 19.09956304619226,
+        "ci_lower": 2.075000000000003,
+        "ci_upper": 29.0
+      },
+      "days_above_threshold_post_release": {
+        "avg": 0.0,
+        "ci_lower": 0.0,
+        "ci_upper": 0.0
+      },
+      "proportion_above_threshold_at_release": {
+        "avg": 0.017166042446941324,
+        "ci_lower": 0.0,
+        "ci_upper": 0.0
+      },
+      "proportion_below_threshold_at_release": {
+        "avg": 0.9828339575530587,
+        "ci_lower": 1.0,
+        "ci_upper": 1.0
+      },
+      "risk_score": {
+        "avg": 0.013327477649777965,
+        "ci_lower": 0.0,
+        "ci_upper": 0.0
+      }
+    }
+  }
+}

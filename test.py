@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 from virus_model import VirusModel
 from model_fitting import ModelFitting
-from constants import PARAM_BOUNDS, PARAM_NAMES, PARAM_STDS
+from config import PARAM_BOUNDS, PARAM_NAMES, PARAM_STDS
 from utils import estimate_params_least_squares, calculate_parameter_statistics
 from visualization import Visualization
 
