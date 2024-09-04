@@ -2,7 +2,7 @@ import numpy as np
 from utils import load_data, estimate_params_least_squares, create_directory_structure
 from model_fitting import ModelFitting
 from visualization import Visualization
-from analysis import analyze_epidemiological_metrics, calculate_risk_and_burden, post_mcmc_analysis
+from analysis import analyze_epidemiological_metrics, calculate_risk_and_burden, post_mcmc_analysis, calculate_risk_burden_sampled_tstar
 import config
 import os
 import logging
@@ -101,6 +101,28 @@ def main():
         processed_chains = chains[:, burn_in_period:, :]
         results = calculate_risk_burden_for_epsilon_tstar(processed_chains, time_extended, os.path.join(config.BASE_OUTPUT_DIR, case))
         Visualization.plot_risk_burden_epsilon_tstar(results, case, os.path.join(config.BASE_OUTPUT_DIR, case))
+
+
+    for chains, case in [(chains_f, 'fatal'), (chains_nf, 'non_fatal')]:
+        processed_chains = chains[:, burn_in_period:, :]
+        
+        # Calculate risk burden with sampled T_STAR
+        results_sampled_tstar, t_star_samples = calculate_risk_burden_sampled_tstar(
+            processed_chains, 
+            config.ISOLATION_PERIODS, 
+            time_extended, 
+            config.VIRAL_LOAD_THRESHOLDS,
+            debug_shapes,
+            os.path.join(config.BASE_OUTPUT_DIR, case)
+        )
+        
+        # Plot results with sampled T_STAR
+        Visualization.plot_risk_burden_sampled_tstar(
+            results_sampled_tstar, 
+            t_star_samples,
+            case, 
+            os.path.join(config.BASE_OUTPUT_DIR, case)
+        )
 
     # Plot treatment effects
     Visualization.plot_treatment_effects(chains_f, chains_nf, burn_in_period, time_extended, 

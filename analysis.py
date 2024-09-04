@@ -13,6 +13,14 @@ from multiprocessing import Pool
 from functools import partial
 import time
 import json
+import numpy as np
+from multiprocessing import Pool, current_process
+from functools import partial
+import time
+from tqdm import tqdm
+import os
+import logging
+import cpu
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -367,3 +375,70 @@ def plot_kde(all_results, epsilon_values, p_fatal, output_dir):
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, 'days_above_threshold_after_isolation_kde.png'))
     plt.close()
+
+
+def calculate_risk_burden_sampled_tstar(chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, num_samples=150):
+    num_cores = 25
+    logging.info(f"Starting calculate_risk_burden_sampled_tstar with {num_cores} samples using 6 cores...")
+    start_time = time.time()
+
+    process_epsilon = partial(process_single_epsilon, 
+                              chains=chains, 
+                              isolation_periods=isolation_periods, 
+                              time_extended=time_extended, 
+                              thresholds=thresholds, 
+                              debug_shapes=debug_shapes, 
+                              base_output_dir=base_output_dir, 
+                              num_samples=num_samples)
+
+    with Pool(processes=num_cores) as pool:
+        results_with_tstar = list(tqdm(pool.imap(process_epsilon, config.EPSILON_VALUES), 
+                                       total=len(config.EPSILON_VALUES), 
+                                       desc="Processing epsilon values"))
+
+    # Separate results and t_star samples
+    results = {}
+    t_star_samples = {}
+    for epsilon, epsilon_results, epsilon_t_stars in results_with_tstar:
+        results[epsilon] = epsilon_results
+        t_star_samples[epsilon] = epsilon_t_stars
+
+    end_time = time.time()
+    logging.info(f"Completed calculate_risk_burden_sampled_tstar. Total time taken: {end_time - start_time:.2f} seconds")
+
+    return results, t_star_samples
+
+def process_single_epsilon(epsilon, chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, num_samples):
+    np.random.seed()  # Ensure different random seeds for each process
+    
+    metrics = ['days_unnecessarily_isolated', 'days_above_threshold_post_release', 
+               'proportion_above_threshold_at_release', 'proportion_below_threshold_at_release', 'risk_score']
+    
+    epsilon_results = {threshold: {period: {metric: np.zeros(num_samples) for metric in metrics} 
+                                   for period in isolation_periods} 
+                       for threshold in thresholds}
+    
+    t_star_samples = []  # Store t_star values
+
+    for sample_index in range(num_samples):
+        t_star = sample_t_star()
+        t_star_samples.append(t_star)  # Store the t_star value
+        risk_burden = process_all_scenarios(chains, thresholds, isolation_periods, time_extended, debug_shapes, base_output_dir, epsilon, t_star)
+        
+        for threshold in thresholds:
+            for period in isolation_periods:
+                for metric in metrics:
+                    epsilon_results[threshold][period][metric][sample_index] = risk_burden[threshold][period][metric]['avg']
+    
+    # Calculate average metrics across samples
+    for threshold in thresholds:
+        for period in isolation_periods:
+            for metric in metrics:
+                values = epsilon_results[threshold][period][metric]
+                epsilon_results[threshold][period][metric] = {
+                    'avg': np.mean(values),
+                    'ci_lower': np.percentile(values, 2.5),
+                    'ci_upper': np.percentile(values, 97.5)
+                }
+    
+    return epsilon, epsilon_results, t_star_samples

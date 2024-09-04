@@ -1,22 +1,52 @@
 {
   "shapes": {
+    "initial": {
+      "chains_f": [
+        4,
+        30001,
+        6
+      ],
+      "chains_nf": [
+        4,
+        30001,
+        6
+      ]
+    },
+    "fatal_processed": [
+      4,
+      24001,
+      6
+    ],
+    "fatal_post_mcmc": [
+      4,
+      96004
+    ],
     "all_viral_loads": [
       [
-        801,
+        24001,
         301
       ],
       [
-        801,
+        24001,
         301
       ],
       [
-        801,
+        24001,
         301
       ],
       [
-        801,
+        24001,
         301
       ]
+    ],
+    "non_fatal_processed": [
+      4,
+      24001,
+      6
+    ],
+    "non_fatal_post_mcmc": [
+      4,
+      96004
     ]
   },
   "structure": {
@@ -686,9 +716,9 @@
         "ci_upper": 0.0
       },
       "days_above_threshold_post_release": {
-        "avg": 14.333021223470661,
-        "ci_lower": 3.0,
-        "ci_upper": 30.0
+        "avg": 16.26468688804633,
+        "ci_lower": 15.0,
+        "ci_upper": 18.0
       },
       "proportion_above_threshold_at_release": {
         "avg": 1.0,
@@ -701,43 +731,43 @@
         "ci_upper": 0.0
       },
       "risk_score": {
-        "avg": 39.331190455746636,
-        "ci_lower": 4.851603469281724,
-        "ci_upper": 109.86847504708983
+        "avg": 58.12285708025571,
+        "ci_lower": 53.26129749892427,
+        "ci_upper": 63.93608226025937
       }
     },
     "threshold_3_period_15": {
       "days_unnecessarily_isolated": {
-        "avg": 4.514044943820225,
+        "avg": 0.0011457855922669888,
         "ci_lower": 0.0,
-        "ci_upper": 12.0
+        "ci_upper": 0.0
       },
       "days_above_threshold_post_release": {
-        "avg": 3.8470661672908864,
+        "avg": 1.2658326736385983,
         "ci_lower": 0.0,
-        "ci_upper": 15.0
+        "ci_upper": 3.0
       },
       "proportion_above_threshold_at_release": {
-        "avg": 0.5202871410736579,
-        "ci_lower": 0.0,
+        "avg": 0.998854214407733,
+        "ci_lower": 1.0,
         "ci_upper": 1.0
       },
       "proportion_below_threshold_at_release": {
-        "avg": 0.4797128589263421,
+        "avg": 0.0011457855922669888,
         "ci_lower": 0.0,
-        "ci_upper": 1.0
+        "ci_upper": 0.0
       },
       "risk_score": {
-        "avg": 7.087851715233901,
-        "ci_lower": 0.0,
-        "ci_upper": 51.00813943421288
+        "avg": 1.7913081620001934,
+        "ci_lower": 0.5301592277759051,
+        "ci_upper": 4.127722952347563
       }
     },
     "threshold_3_period_30": {
       "days_unnecessarily_isolated": {
-        "avg": 15.666978776529339,
-        "ci_lower": 0.0,
-        "ci_upper": 27.0
+        "avg": 13.735313111953669,
+        "ci_lower": 12.0,
+        "ci_upper": 15.0
       },
       "days_above_threshold_post_release": {
         "avg": 0.0,
@@ -745,19 +775,19 @@
         "ci_upper": 0.0
       },
       "proportion_above_threshold_at_release": {
-        "avg": 0.1182896379525593,
+        "avg": 0.0,
         "ci_lower": 0.0,
-        "ci_upper": 1.0
+        "ci_upper": 0.0
       },
       "proportion_below_threshold_at_release": {
-        "avg": 0.8817103620474407,
-        "ci_lower": 0.0,
+        "avg": 1.0,
+        "ci_lower": 1.0,
         "ci_upper": 1.0
       },
       "risk_score": {
-        "avg": 0.20727446373641353,
+        "avg": 0.0,
         "ci_lower": 0.0,
-        "ci_upper": 2.5948825824105493
+        "ci_upper": 0.0
       }
     }
   }

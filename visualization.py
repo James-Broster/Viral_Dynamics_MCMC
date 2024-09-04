@@ -4,6 +4,7 @@ import numpy as np
 import os
 import config
 from tqdm import tqdm
+import json
 
 from config import PARAM_NAMES, PARAM_BOUNDS, PARAM_STDS, EPSILON_VALUES, T_STAR_VALUES
 from virus_model import cached_solve
@@ -459,3 +460,78 @@ class Visualization:
             plt.close(fig)
 
         print(f"Risk and burden plots for different epsilon and t_star values saved in {os.path.join(base_output_dir, 'treatment_effects')}")
+
+
+    @staticmethod
+    def plot_risk_burden_sampled_tstar(results, t_star_samples, case, base_output_dir):
+        metrics = [
+            'days_unnecessarily_isolated',
+            'days_above_threshold_post_release',
+            'proportion_above_threshold_at_release',
+            'proportion_below_threshold_at_release',
+            'risk_score'
+        ]
+        titles = [
+            'Days Unnecessarily Isolated',
+            'Days Above Threshold Post-Release',
+            'Proportion Above Threshold at Release',
+            'Proportion Below Threshold at Release',
+            'Cumulative Risk Score'
+        ]
+
+        epsilon_values = sorted(results.keys())
+        thresholds = sorted(next(iter(results.values())).keys())
+
+        # Get the baseline data (epsilon = 0)
+        baseline_data = results[min(epsilon_values)]
+
+        fig, axes = plt.subplots(len(metrics) + 1, len(epsilon_values), figsize=(5*len(epsilon_values), 5*(len(metrics) + 1)), squeeze=False)
+        
+        threshold_colors = {3: 'blue', 4: 'orange', 5: 'green'}
+
+        for i, (metric, title) in enumerate(zip(metrics, titles)):
+            for j, epsilon in enumerate(epsilon_values):
+                ax = axes[i, j]
+                
+                for threshold in thresholds:
+                    color = threshold_colors.get(threshold, 'gray')
+                    x = sorted(results[epsilon][threshold].keys())  # isolation periods
+                    
+                    # Plot baseline (no therapy) as dotted line
+                    y_baseline = [baseline_data[threshold][period][metric]['avg'] for period in x]
+                    ax.plot(x, y_baseline, ':', color=color, label=f'Baseline {threshold} log10' if j == 0 and threshold == thresholds[0] else "")
+                    
+                    # Plot therapy results as solid line with markers
+                    y = [results[epsilon][threshold][period][metric]['avg'] for period in x]
+                    ax.plot(x, y, marker='o', color=color, label=f'{threshold} log10 copies/mL' if j == 0 else "")
+                
+                ax.set_xlabel('Isolation Period (days)' if i == len(metrics) - 1 else '')
+                ax.set_ylabel(title if j == 0 else '')
+                ax.set_title(f'ε = {epsilon}' if i == 0 else '')
+                
+                if i == 0 and j == len(epsilon_values) - 1:
+                    ax.legend(title='Viral Load Threshold', fontsize='x-small', loc='center left', bbox_to_anchor=(1, 0.5))
+                
+                ax.grid(True, which='both', linestyle='--', alpha=0.5)
+                
+                if 'proportion' in metric:
+                    ax.set_ylim(0, 1)
+                elif metric == 'risk_score':
+                    ax.set_yscale('linear')
+
+        # Plot t_star samples
+        for j, epsilon in enumerate(epsilon_values):
+            ax = axes[-1, j]
+            ax.hist(t_star_samples[epsilon], bins=20, edgecolor='black')
+            ax.set_xlabel('T* Value')
+            ax.set_ylabel('Frequency' if j == 0 else '')
+            ax.set_title(f'T* Distribution (ε = {epsilon})')
+
+        plt.tight_layout()
+        output_dir = os.path.join(base_output_dir, 'treatment_effects')
+        os.makedirs(output_dir, exist_ok=True)
+        output_file = os.path.join(output_dir, f'risk_burden_sampled_tstar_{case}.png')
+        plt.savefig(output_file, bbox_inches='tight')
+        plt.close(fig)
+
+        print(f"Risk and burden plot with sampled T_STAR saved in {output_file}")
