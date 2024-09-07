@@ -90,3 +90,67 @@ class ModelPredictions:
         plt.legend()
         plt.savefig(os.path.join(output_dir, f'least_squares_fit_{case}.png'))
         plt.close()
+
+    @staticmethod
+    def plot_viral_load_curves(chains, burn_in_period, output_dir, case, time_extended):
+        config = Config()
+        print(f"Starting plot_viral_load_curves for {case} case")
+        
+        extended_time = time_extended
+        epsilon_values = config.EPSILON_VALUES
+        t_star_values = config.T_STAR_VALUES
+
+        latter_chains = chains[:, burn_in_period::100, :]
+        flattened_chains = latter_chains.reshape(-1, latter_chains.shape[-1])
+
+        fig, axes = plt.subplots(len(t_star_values), len(epsilon_values), figsize=(5*len(epsilon_values), 5*len(t_star_values)), squeeze=False)
+
+        for i, t_star in enumerate(t_star_values):
+            for j, epsilon in enumerate(epsilon_values):
+                ax = axes[i, j]
+                
+                # Calculate treatment predictions
+                treatment_predictions = []
+                for params in flattened_chains:
+                    treatment_predictions.append(cached_solve(params, extended_time, epsilon=epsilon, t_star=t_star)[:, 2])
+                treatment_predictions = np.array(treatment_predictions)
+                
+                # Calculate no-treatment predictions
+                no_treatment_predictions = []
+                for params in flattened_chains:
+                    no_treatment_predictions.append(cached_solve(params, extended_time, epsilon=0, t_star=0)[:, 2])
+                no_treatment_predictions = np.array(no_treatment_predictions)
+                
+                # Plot treatment curves
+                treatment_median = np.median(treatment_predictions, axis=0)
+                treatment_lower_ci = np.percentile(treatment_predictions, 2.5, axis=0)
+                treatment_upper_ci = np.percentile(treatment_predictions, 97.5, axis=0)
+                
+                ax.plot(extended_time, treatment_median, '-', label='Treatment', color='blue')
+                ax.fill_between(extended_time, treatment_lower_ci, treatment_upper_ci, alpha=0.2, color='blue')
+                
+                # Plot no-treatment curves
+                no_treatment_median = np.median(no_treatment_predictions, axis=0)
+                no_treatment_lower_ci = np.percentile(no_treatment_predictions, 2.5, axis=0)
+                no_treatment_upper_ci = np.percentile(no_treatment_predictions, 97.5, axis=0)
+                
+                ax.plot(extended_time, no_treatment_median, '-', label='No Treatment', color='red')
+                ax.fill_between(extended_time, no_treatment_lower_ci, no_treatment_upper_ci, alpha=0.2, color='red')
+                
+                ax.axvline(x=21, color='gray', linestyle='--', label='Day 21')
+                ax.set_xlabel('Time (days)')
+                ax.set_ylabel('log10(Viral Load)')
+                ax.set_title(f't* = {t_star}, ε = {epsilon}')
+                ax.set_xlim(0, 30)
+                ax.set_ylim(0, 10)  # Adjust if needed
+                ax.grid(True, which='both', linestyle=':', alpha=0.5)
+                
+                if i == 0 and j == 0:
+                    ax.legend(fontsize='x-small')
+
+        plt.tight_layout()
+        output_file = os.path.join(output_dir, f'viral_load_curves_{case}.png')
+        plt.savefig(output_file)
+        plt.close()
+
+        print(f"Viral load curves plot saved to {output_file}")

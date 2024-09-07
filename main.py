@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 def main():
     config = Config()
-    
+    time_extended = np.linspace(0, 30, 301)
     # Set up directory structure
     directories = setup_directories(config.BASE_OUTPUT_DIR)
 
@@ -47,7 +47,6 @@ def main():
         directories['fatal_mcmc_diagnostics'], directories['non_fatal_mcmc_diagnostics']
     )
 
-    time_extended = np.linspace(0, 30, 301)
     ModelPredictions.plot_model_predictions(
         time_f, time_nf, observed_data_f, observed_data_nf, 
         chains_f, chains_nf, config.BURN_IN_PERIOD, 
@@ -66,16 +65,24 @@ def main():
     )
 
     # Treatment effect analysis
-    for chains, case in [(chains_f, 'fatal'), (chains_nf, 'non_fatal')]:
-        case_dir = directories[case]
+    for chains, case_type in [(chains_f, 'fatal'), (chains_nf, 'non_fatal')]:
+        print(f"[DEBUG] Processing {case_type} case")
+        case_dir = directories[case_type]
         
         # Risk burden for different epsilon and t_star values
-        risk_burden_epsilon_tstar = calculate_risk_burden_for_epsilon_tstar(chains, time_extended, case_dir)
+        print(f"[DEBUG] Calculating risk burden for different epsilon and t_star values ({case_type})")
+        risk_burden_epsilon_tstar, no_treatment_results = calculate_risk_burden_for_epsilon_tstar(chains, time_extended, case_dir)
+        
+        print(f"[DEBUG] Plotting risk burden for different epsilon and t_star values ({case_type})")
         RiskBurdenPlots.plot_risk_burden_epsilon_tstar(
-            risk_burden_epsilon_tstar, case, directories[f'{case}_treatment_effects']
+            risk_burden_epsilon_tstar, 
+            no_treatment_results, 
+            case_type, 
+            directories[f'{case_type}_treatment_effects']
         )
 
         # Risk burden with sampled t_star
+        print(f"[DEBUG] Calculating risk burden with sampled t_star ({case_type})")
         results_sampled_tstar, t_star_samples = calculate_risk_burden_sampled_tstar(
             chains, 
             config.ISOLATION_PERIODS, 
@@ -84,14 +91,27 @@ def main():
             debug_shapes,
             case_dir
         )
+        
+        print(f"[DEBUG] Plotting risk burden with sampled t_star ({case_type})")
         RiskBurdenPlots.plot_risk_burden_sampled_tstar(
             results_sampled_tstar, 
             t_star_samples,
-            case, 
-            directories[f'{case}_treatment_effects']
+            no_treatment_results,  # Add this line
+            case_type, 
+            directories[f'{case_type}_treatment_effects']
+        )
+        
+        # Add this new section
+        print(f"[DEBUG] Plotting viral load curves ({case_type})")
+        ModelPredictions.plot_viral_load_curves(
+            chains, 
+            config.BURN_IN_PERIOD,
+            directories[f'{case_type}_treatment_effects'],
+            case_type,
+            time_extended
         )
 
-    logging.info("Analysis and visualization completed.")
+    print("[DEBUG] Analysis and visualization completed.")
 
 if __name__ == "__main__":
     main()

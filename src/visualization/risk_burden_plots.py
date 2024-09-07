@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import os
+import numpy as np
 from config.config import Config
 
 class RiskBurdenPlots:
@@ -9,18 +10,15 @@ class RiskBurdenPlots:
             'days_unnecessarily_isolated',
             'days_above_threshold_post_release',
             'proportion_above_threshold_at_release',
-            'proportion_below_threshold_at_release',
             'risk_score'
         ]
         titles = [
             'Days Unnecessarily Isolated',
             'Days Above Threshold Post-Release',
             'Proportion Above Threshold at Release',
-            'Proportion Below Threshold at Release',
             'Cumulative Risk Score'
         ]
 
-        # Ensure the output directory exists
         os.makedirs(output_dir, exist_ok=True)
 
         for metric, title in zip(metrics, titles):
@@ -29,8 +27,11 @@ class RiskBurdenPlots:
             for threshold in risk_burden.keys():
                 x = sorted(risk_burden[threshold].keys())  # isolation periods
                 y = [risk_burden[threshold][period][metric]['avg'] for period in x]
+                ci_lower = [risk_burden[threshold][period][metric]['ci_lower'] for period in x]
+                ci_upper = [risk_burden[threshold][period][metric]['ci_upper'] for period in x]
 
                 plt.plot(x, y, marker='o', label=f'{threshold} log10 copies/mL')
+                plt.fill_between(x, ci_lower, ci_upper, alpha=0.2)
 
             plt.xlabel('Isolation Period (days)')
             plt.ylabel(title)
@@ -48,22 +49,19 @@ class RiskBurdenPlots:
             plt.close()
 
         print(f"Risk and burden plots saved in {output_dir}")
-
     @staticmethod
-    def plot_risk_burden_epsilon_tstar(results, case, output_dir):
+    def plot_risk_burden_epsilon_tstar(results, no_treatment_results, case, output_dir):
         config = Config()
         metrics = [
             'days_unnecessarily_isolated',
             'days_above_threshold_post_release',
             'proportion_above_threshold_at_release',
-            'proportion_below_threshold_at_release',
             'risk_score'
         ]
         titles = [
             'Days Unnecessarily Isolated',
             'Days Above Threshold Post-Release',
             'Proportion Above Threshold at Release',
-            'Proportion Below Threshold at Release',
             'Cumulative Risk Score'
         ]
 
@@ -85,7 +83,15 @@ class RiskBurdenPlots:
                         
                         x = sorted(risk_burden[threshold].keys())  # isolation periods
                         y = [risk_burden[threshold][period][metric]['avg'] for period in x]
-                        ax.plot(x, y, marker='o', color=color, label=f'{threshold} log10 copies/mL')
+                        ci_lower = [risk_burden[threshold][period][metric]['ci_lower'] for period in x]
+                        ci_upper = [risk_burden[threshold][period][metric]['ci_upper'] for period in x]
+                        
+                        ax.plot(x, y, marker='o', color=color, label=f'{threshold} log10 copies/mL (Treatment)')
+                        ax.fill_between(x, ci_lower, ci_upper, color=color, alpha=0.2)
+
+                        # Plot no-treatment curve
+                        y_no_treatment = [no_treatment_results[threshold][period][metric]['avg'] for period in x]
+                        ax.plot(x, y_no_treatment, linestyle=':', color=color, label=f'{threshold} log10 copies/mL (No Treatment)')
 
                     ax.set_xlabel('Isolation Period (days)')
                     ax.set_ylabel(title)
@@ -103,23 +109,19 @@ class RiskBurdenPlots:
             plt.savefig(output_file)
             plt.close(fig)
 
-        print(f"Risk and burden plots for different epsilon and t_star values saved in {output_dir}")
-
     @staticmethod
-    def plot_risk_burden_sampled_tstar(results, t_star_samples, case, output_dir):
+    def plot_risk_burden_sampled_tstar(results, t_star_samples, no_treatment_results, case, output_dir):
         config = Config()
         metrics = [
             'days_unnecessarily_isolated',
             'days_above_threshold_post_release',
             'proportion_above_threshold_at_release',
-            'proportion_below_threshold_at_release',
             'risk_score'
         ]
         titles = [
             'Days Unnecessarily Isolated',
             'Days Above Threshold Post-Release',
             'Proportion Above Threshold at Release',
-            'Proportion Below Threshold at Release',
             'Cumulative Risk Score'
         ]
 
@@ -138,8 +140,16 @@ class RiskBurdenPlots:
                     color = threshold_colors.get(threshold, 'gray')
                     x = sorted(results[epsilon][threshold].keys())  # isolation periods
                     
+                    # Plot treatment curve with confidence intervals
                     y = [results[epsilon][threshold][period][metric]['avg'] for period in x]
-                    ax.plot(x, y, marker='o', color=color, label=f'{threshold} log10 copies/mL' if j == 0 else "")
+                    ci_lower = [results[epsilon][threshold][period][metric]['ci_lower'] for period in x]
+                    ci_upper = [results[epsilon][threshold][period][metric]['ci_upper'] for period in x]
+                    ax.plot(x, y, marker='o', color=color, label=f'{threshold} log10 copies/mL (Treatment)')
+                    ax.fill_between(x, ci_lower, ci_upper, color=color, alpha=0.2)
+
+                    # Plot no-treatment curve
+                    y_no_treatment = [no_treatment_results[threshold][period][metric]['avg'] for period in x]
+                    ax.plot(x, y_no_treatment, linestyle=':', color=color, label=f'{threshold} log10 copies/mL (No Treatment)')
                 
                 ax.set_xlabel('Isolation Period (days)' if i == len(metrics) - 1 else '')
                 ax.set_ylabel(title if j == 0 else '')
@@ -167,5 +177,3 @@ class RiskBurdenPlots:
         output_file = os.path.join(output_dir, f'risk_burden_sampled_tstar_{case}.png')
         plt.savefig(output_file, bbox_inches='tight')
         plt.close(fig)
-
-        print(f"Risk and burden plot with sampled T_STAR saved in {output_file}")
