@@ -20,8 +20,8 @@ class Config:
         "V_0": 1000
     }
 
-    BASE_OUTPUT_DIR = '/Users/james/Desktop/VD_new/output'
-    NUM_ITERATIONS = 10000
+    BASE_OUTPUT_DIR = '/home/broster/Desktop/Viral_Dynamics_MCMC/output'
+    NUM_ITERATIONS = 30000
     BURN_IN_PERIOD = int(NUM_ITERATIONS * 0.2)
     TRANSITION_PERIOD = int(NUM_ITERATIONS * 0.3)
     NUM_CHAINS = 4
