@@ -111,7 +111,7 @@ class RiskBurdenPlots:
 
             plt.tight_layout()
             output_file = os.path.join(output_dir, f'{metric}_{case}.png')
-            plt.savefig(output_file)
+            plt.savefig(output_file, dpi=800, bbox_inches='tight')
             plt.close(fig)
 
 
@@ -182,5 +182,5 @@ class RiskBurdenPlots:
 
         plt.tight_layout()
         output_file = os.path.join(output_dir, f'risk_burden_sampled_tstar_{case}.png')
-        plt.savefig(output_file, bbox_inches='tight')
+        plt.savefig(output_file, dpi=800, bbox_inches='tight')
         plt.close(fig)

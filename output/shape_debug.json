@@ -2,31 +2,31 @@
   "initial": {
     "chains_f": [
       4,
-      10001,
+      11,
       6
     ],
     "chains_nf": [
       4,
-      10001,
+      11,
       6
     ]
   },
   "fatal_processed": [
     4,
-    8001,
+    9,
     6
   ],
   "fatal_post_mcmc": [
     4,
-    32004
+    36
   ],
   "non_fatal_processed": [
     4,
-    8001,
+    9,
     6
   ],
   "non_fatal_post_mcmc": [
     4,
-    32004
+    36
   ]
 }
