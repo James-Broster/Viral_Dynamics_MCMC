@@ -4,6 +4,8 @@ import numpy as np
 from config.config import Config
 
 class RiskBurdenPlots:
+
+    
     @staticmethod
     def plot_risk_burden(risk_burden, case, output_dir):
         metrics = [
@@ -49,6 +51,9 @@ class RiskBurdenPlots:
             plt.close()
 
         print(f"Risk and burden plots saved in {output_dir}")
+
+
+
     @staticmethod
     def plot_risk_burden_epsilon_tstar(results, no_treatment_results, case, output_dir):
         config = Config()
@@ -108,6 +113,8 @@ class RiskBurdenPlots:
             output_file = os.path.join(output_dir, f'{metric}_{case}.png')
             plt.savefig(output_file)
             plt.close(fig)
+
+
 
     @staticmethod
     def plot_risk_burden_sampled_tstar(results, t_star_samples, no_treatment_results, case, output_dir):

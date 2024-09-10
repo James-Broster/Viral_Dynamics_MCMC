@@ -6,6 +6,9 @@ import json
 from multiprocessing import Pool
 from functools import partial
 import time
+import csv
+from scipy import stats
+from statsmodels.stats.proportion import proportion_confint
 from src.model.virus_model import cached_solve
 from src.utils.statistical_utils import sample_t_star
 from config.config import Config
@@ -88,6 +91,15 @@ def calculate_risk_and_burden(chains, isolation_periods, time_extended, threshol
 
     risk_burden = process_all_scenarios(chains, thresholds, isolation_periods, time_extended, debug_shapes, base_output_dir, epsilon, t_star)
 
+    # Determine the case (fatal or non-fatal) based on the base_output_dir
+    case = 'fatal' if 'fatal' in base_output_dir else 'non_fatal'
+    
+    # Create the csv_output_dir with the correct structure
+    csv_output_dir = os.path.join(base_output_dir, 'treatment_effects', 'csv_outputs')
+    
+    # Write results to CSV
+    write_results_to_csv(risk_burden, csv_output_dir, case, epsilon, t_star)
+
     end_time = time.time()
     logging.info(f"Completed calculate_risk_and_burden for epsilon={epsilon}, t_star={t_star}. Total time taken: {end_time - start_time:.2f} seconds")
 
@@ -103,7 +115,7 @@ def process_all_scenarios(chains, thresholds, periods, time_extended, debug_shap
         for params in chain:
             try:
                 solution = cached_solve(params, time_extended, epsilon=epsilon, t_star=t_star)
-                chain_viral_loads.append(solution[:, 2])  # log10 of viral load is the third column
+                chain_viral_loads.append(solution[:, 2])  # VL third
             except Exception as e:
                 logging.error(f"Error solving ODE: {str(e)}")
                 logging.error(f"params causing error: {params}")
@@ -141,16 +153,27 @@ def calculate_metrics(all_viral_loads, threshold, period):
     return {
         'days_unnecessarily_isolated': calculate_stats(flat_days_isolated),
         'days_above_threshold_post_release': calculate_stats(flat_days_released),
-        'proportion_above_threshold_at_release': calculate_stats(flat_released_above),
+        'proportion_above_threshold_at_release': calculate_stats(flat_released_above, is_proportion=True),
         'risk_score': calculate_stats(flat_risk_scores)
     }
 
-def calculate_stats(data):
-    return {
-        'avg': np.mean(data),
-        'ci_lower': np.percentile(data, 2.5),
-        'ci_upper': np.percentile(data, 97.5)
-    }
+def calculate_stats(data, is_proportion=False):
+    if is_proportion:
+        n = len(data)
+        successes = sum(data)
+        proportion = successes / n
+        ci_lower, ci_upper = proportion_confint(successes, n, method='wilson')
+        return {
+            'avg': proportion,
+            'ci_lower': ci_lower,
+            'ci_upper': ci_upper
+        }
+    else:
+        return {
+            'avg': np.mean(data),
+            'ci_lower': np.percentile(data, 2.5),
+            'ci_upper': np.percentile(data, 97.5)
+        }
 
 def calculate_days_unnecessarily_isolated(viral_load, threshold, period):
     crossing_day = find_crossing_day(viral_load, threshold)
@@ -161,7 +184,7 @@ def calculate_days_above_threshold(viral_load, threshold, period):
     return max(0, crossing_day - period)
 
 def calculate_risk_score(viral_load, threshold, period):
-    daily_vl = viral_load[::10]  # Take every 10th point to get daily values
+    daily_vl = viral_load[::10]  # daily instead of finer grained 
     risk_contributions = np.maximum(0, daily_vl[period:] - threshold)
     return np.sum(risk_contributions)
 
@@ -233,9 +256,9 @@ def calculate_risk_burden_for_epsilon_tstar(chains, time_extended, base_output_d
     logging.info("Completed calculating risk burden for all scenarios.")
     return results, no_treatment_results
 
-def calculate_risk_burden_sampled_tstar(chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, num_samples=300):
+def calculate_risk_burden_sampled_tstar(chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, num_samples=30):
     config = Config()
-    num_cores = 20 # Or however many cores you want to use
+    num_cores = 3 # Or however many cores you want to use
     logging.info(f"Starting calculate_risk_burden_sampled_tstar with {num_samples} samples per epsilon using {num_cores} cores...")
     start_time = time.time()
 
@@ -319,6 +342,38 @@ def process_single_task(task, chains, isolation_periods, time_extended, threshol
     except Exception as e:
         logging.error(f"Error processing task (epsilon={epsilon}, sample={sample_index}): {str(e)}")
         return epsilon, sample_index, None, None
+
+def write_results_to_csv(risk_burden, output_dir, case, epsilon, t_star):
+    metrics = [
+        'days_unnecessarily_isolated',
+        'days_above_threshold_post_release',
+        'proportion_above_threshold_at_release',
+        'risk_score'
+    ]
+
+    for threshold in risk_burden.keys():
+        for metric in metrics:
+            # Create a directory for each threshold and metric
+            threshold_metric_dir = os.path.join(output_dir, str(threshold), metric)
+            os.makedirs(threshold_metric_dir, exist_ok=True)
+
+            filename = f"{case}_epsilon_{epsilon}_tstar_{t_star}.csv"
+            filepath = os.path.join(threshold_metric_dir, filename)
+            
+            with open(filepath, 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(['Day of isolation', 'Mean', 'Lower_CI', 'Upper_CI'])
+                
+                for isolation_day in sorted(risk_burden[threshold].keys()):
+                    result = risk_burden[threshold][isolation_day][metric]
+                    writer.writerow([
+                        isolation_day,
+                        result['avg'],
+                        result['ci_lower'],
+                        result['ci_upper']
+                    ])
+            
+            print(f"CSV file for threshold {threshold}, {metric} saved to {filepath}")
 
 METRICS = ['days_unnecessarily_isolated', 'days_above_threshold_post_release', 
            'proportion_above_threshold_at_release', 'risk_score']

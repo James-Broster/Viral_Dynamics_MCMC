@@ -1,3 +1,5 @@
+import os
+
 class Config:
     PARAM_NAMES = ['alpha_f', 'beta', 'delta_f', 'gamma', 'f2_0', 'V_0']
     PARAM_STDS = [1e-9, 1e-6, 1.0, 1000, 0.005, 3000]
@@ -20,8 +22,8 @@ class Config:
         "V_0": 1000
     }
 
-    BASE_OUTPUT_DIR = '/home/broster/Desktop/Viral_Dynamics_MCMC/output'
-    NUM_ITERATIONS = 30000
+    BASE_OUTPUT_DIR = os.path.join(os.getcwd(), 'output')
+    NUM_ITERATIONS = 10000
     BURN_IN_PERIOD = int(NUM_ITERATIONS * 0.2)
     TRANSITION_PERIOD = int(NUM_ITERATIONS * 0.3)
     NUM_CHAINS = 4

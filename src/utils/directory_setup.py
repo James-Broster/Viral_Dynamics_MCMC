@@ -1,15 +1,7 @@
 import os
 
 def setup_directories(base_output_dir):
-    """
-    Set up the directory structure for output files.
-    
-    Args:
-    base_output_dir (str): The base directory for all outputs.
-    
-    Returns:
-    dict: A dictionary containing paths to all created directories.
-    """
+
     directories = {
         'base': base_output_dir,
         'fatal': os.path.join(base_output_dir, 'fatal'),
@@ -24,6 +16,7 @@ def setup_directories(base_output_dir):
             f'{case}_mcmc_diagnostics_histogram': os.path.join(directories[case], 'mcmc_diagnostics', 'histograms'),
             f'{case}_mcmc_diagnostics_rhat': os.path.join(directories[case], 'mcmc_diagnostics', 'rhat'),
             f'{case}_treatment_effects': os.path.join(directories[case], 'treatment_effects'),
+            f'{case}_csv_outputs': os.path.join(directories[case], 'csv_outputs'),  # New CSV output directory
         })
 
     # Create all directories

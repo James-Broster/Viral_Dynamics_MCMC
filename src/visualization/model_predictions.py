@@ -1,12 +1,46 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import csv
 from src.model.virus_model import cached_solve
 from src.utils.statistical_utils import fit_gamma_to_median_iqr
 from config.config import Config
 from scipy.stats import gamma
 
 class ModelPredictions:
+    
+    @staticmethod
+    def calculate_and_save_parameter_stats(chains, burn_in_period, output_dir, case):
+        latter_chains = chains[:, burn_in_period:, :]
+        flattened_chains = latter_chains.reshape(-1, latter_chains.shape[-1])
+        
+        param_names = ['alpha_f', 'beta', 'delta_f', 'gamma', 'f2_0', 'V_0']
+        stats = []
+        
+        for i, param_name in enumerate(param_names):
+            param_values = flattened_chains[:, i]
+            mean = np.mean(param_values)
+            lower_ci = np.percentile(param_values, 2.5)
+            upper_ci = np.percentile(param_values, 97.5)
+            
+            stats.append({
+                'parameter': param_name,
+                'mean_ci': f"{mean:.2e} ({lower_ci:.2e}, {upper_ci:.2e})"
+            })
+        
+        # Save the statistics to a CSV file
+        output_file = os.path.join(output_dir, f'parameter_stats_{case}.csv')
+        with open(output_file, 'w', newline='') as csvfile:
+            fieldnames = ['parameter', 'Mean (Confidence Intervals)']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            
+            writer.writeheader()
+            for stat in stats:
+                writer.writerow({'parameter': stat['parameter'], 'Mean (Confidence Intervals)': stat['mean_ci']})
+        
+        print(f"Parameter statistics saved to {output_file}")
+        return stats
+
     @staticmethod
     def plot_model_predictions(time_f, time_nf, observed_data_f, observed_data_nf, chains_f, chains_nf, burn_in_period, fatal_dir, non_fatal_dir, y_min=0, y_max=10):
         print("Starting plot_model_predictions")
@@ -22,6 +56,9 @@ class ModelPredictions:
             (chains_f, 'Fatal', 'red', time_f, observed_data_f, fatal_dir),
             (chains_nf, 'Non-Fatal', 'blue', time_nf, observed_data_nf, non_fatal_dir)
         ]:
+            # Calculate and save parameter statistics
+            ModelPredictions.calculate_and_save_parameter_stats(chains, burn_in_period, output_dir, label.lower())
+            
             fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 12), gridspec_kw={'height_ratios': [3, 1]})
             
             ax1.plot(time, observed_data, 'o', label=f'Observed Data ({label})', color=color, alpha=0.7)
@@ -74,22 +111,6 @@ class ModelPredictions:
             plt.close()
 
         print("plot_model_predictions completed")
-
-    @staticmethod
-    def plot_least_squares_fit(time, observed_data, params, output_dir, case):
-        plt.figure(figsize=(10, 6))
-        plt.plot(time, observed_data, 'o', label='Observed Data', alpha=0.7)
-        
-        extended_time = np.linspace(0, 30, 300)
-        prediction = cached_solve(params, extended_time)[:, 2]
-        
-        plt.plot(extended_time, prediction, '-', label='Least Squares Fit')
-        plt.xlabel('Time (days)')
-        plt.ylabel('log10(Viral Load)')
-        plt.title(f'Least Squares Fit for {case.capitalize()} Case')
-        plt.legend()
-        plt.savefig(os.path.join(output_dir, f'least_squares_fit_{case}.png'))
-        plt.close()
 
     @staticmethod
     def plot_viral_load_curves(chains, burn_in_period, output_dir, case, time_extended):
@@ -154,3 +175,19 @@ class ModelPredictions:
         plt.close()
 
         print(f"Viral load curves plot saved to {output_file}")
+
+    @staticmethod
+    def plot_least_squares_fit(time, observed_data, params, output_dir, case):
+        plt.figure(figsize=(10, 6))
+        plt.plot(time, observed_data, 'o', label='Observed Data', alpha=0.7)
+        
+        extended_time = np.linspace(0, 30, 300)
+        prediction = cached_solve(params, extended_time)[:, 2]
+        
+        plt.plot(extended_time, prediction, '-', label='Least Squares Fit')
+        plt.xlabel('Time (days)')
+        plt.ylabel('log10(Viral Load)')
+        plt.title(f'Least Squares Fit for {case.capitalize()} Case')
+        plt.legend()
+        plt.savefig(os.path.join(output_dir, f'least_squares_fit_{case}.png'))
+        plt.close()
