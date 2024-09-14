@@ -269,7 +269,7 @@ def calculate_risk_burden_for_epsilon_tstar(chains, time_extended, base_output_d
     logging.info("Completed calculating risk burden for all scenarios.")
     return results, no_treatment_results
 
-def calculate_risk_burden_sampled_tstar(chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, num_samples=1):
+def calculate_risk_burden_sampled_tstar(chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, num_samples=300):
     config = Config()
     num_cores = 6 # Or however many cores you want to use
     logging.info(f"Starting calculate_risk_burden_sampled_tstar with {num_samples} samples per epsilon using {num_cores} cores...")
