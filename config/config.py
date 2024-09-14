@@ -23,11 +23,11 @@ class Config:
     }
 
     BASE_OUTPUT_DIR = os.path.join(os.getcwd(), 'output')
-    NUM_ITERATIONS = 30000
+    NUM_ITERATIONS = 1000
     BURN_IN_PERIOD = int(NUM_ITERATIONS * 0.2)
     TRANSITION_PERIOD = int(NUM_ITERATIONS * 0.3)
     NUM_CHAINS = 4
-    EPSILON_VALUES = [0.0, 0.3, 0.6, 0.9]
+    EPSILON_VALUES = [0.3, 0.6, 0.9]
     P_FATAL_VALUES = [0.0, 0.4, 0.6, 0.8, 1.0]
     T_STAR_VALUES = [1, 3, 5, 7]
     VIRAL_LOAD_THRESHOLDS = [3, 4, 5]  # log10 viral load thresholds

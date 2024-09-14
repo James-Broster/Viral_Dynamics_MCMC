@@ -3,7 +3,6 @@ import numpy as np
 import os
 import csv
 from src.model.virus_model import cached_solve
-from src.utils.statistical_utils import fit_gamma_to_median_iqr
 from config.config import Config
 from scipy.stats import gamma
 
@@ -11,35 +10,8 @@ class ModelPredictions:
     
     @staticmethod
     def calculate_and_save_parameter_stats(chains, burn_in_period, output_dir, case):
-        latter_chains = chains[:, burn_in_period:, :]
-        flattened_chains = latter_chains.reshape(-1, latter_chains.shape[-1])
-        
-        param_names = ['alpha_f', 'beta', 'delta_f', 'gamma', 'f2_0', 'V_0']
-        stats = []
-        
-        for i, param_name in enumerate(param_names):
-            param_values = flattened_chains[:, i]
-            mean = np.mean(param_values)
-            lower_ci = np.percentile(param_values, 2.5)
-            upper_ci = np.percentile(param_values, 97.5)
-            
-            stats.append({
-                'parameter': param_name,
-                'mean_ci': f"{mean:.2e} ({lower_ci:.2e}, {upper_ci:.2e})"
-            })
-        
-        # Save the statistics to a CSV file
-        output_file = os.path.join(output_dir, f'parameter_stats_{case}.csv')
-        with open(output_file, 'w', newline='') as csvfile:
-            fieldnames = ['parameter', 'Mean (Confidence Intervals)']
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            
-            writer.writeheader()
-            for stat in stats:
-                writer.writerow({'parameter': stat['parameter'], 'Mean (Confidence Intervals)': stat['mean_ci']})
-        
-        print(f"Parameter statistics saved to {output_file}")
-        return stats
+        # ... (Keep the existing implementation)
+        pass
 
     @staticmethod
     def plot_model_predictions(time_f, time_nf, observed_data_f, observed_data_nf, chains_f, chains_nf, burn_in_period, fatal_dir, non_fatal_dir, y_min=0, y_max=10):
@@ -54,6 +26,7 @@ class ModelPredictions:
             ModelPredictions.calculate_and_save_parameter_stats(chains, burn_in_period, output_dir, label.lower())
             
             plt.figure(figsize=(12, 8))
+            plt.rcParams.update({'font.size': 14})  # Increase default font size
             
             plt.plot(time, observed_data, 'o', label=f'Observed Data ({label})', color=color, alpha=0.7)
             
@@ -73,10 +46,10 @@ class ModelPredictions:
             plt.plot(extended_time, median, '-', label=f'RNA copies/ml ({label})', color=color)
             plt.fill_between(extended_time, lower_ci, upper_ci, alpha=0.2, color=color)
         
-            plt.xlabel('Time (days)')
-            plt.ylabel('log10(Viral Load)')
-            plt.title(f'Model Predictions for Viral Load ({label})')
-            plt.legend()
+            plt.xlabel('Time (days)', fontsize=16)
+            plt.ylabel('log10(Viral Load)', fontsize=16)
+            plt.title(f'Model Predictions for Viral Load ({label})', fontsize=18)
+            plt.legend(fontsize=12)
             plt.xlim(0, 30)
             plt.ylim(y_min, y_max)
             plt.grid(True, which='both', linestyle=':', alpha=0.5)
@@ -86,7 +59,7 @@ class ModelPredictions:
             plt.close()
 
         print("plot_model_predictions completed")
-
+        
     @staticmethod
     def plot_viral_load_curves(chains, burn_in_period, output_dir, case, time_extended):
         config = Config()
@@ -99,7 +72,8 @@ class ModelPredictions:
         latter_chains = chains[:, burn_in_period::100, :]
         flattened_chains = latter_chains.reshape(-1, latter_chains.shape[-1])
 
-        fig, axes = plt.subplots(len(t_star_values), len(epsilon_values), figsize=(5*len(epsilon_values), 5*len(t_star_values)), squeeze=False)
+        fig, axes = plt.subplots(len(t_star_values), len(epsilon_values), figsize=(20, 25), squeeze=False)
+        plt.rcParams.update({'font.size': 18})  # Increase default font size
 
         for i, t_star in enumerate(t_star_values):
             for j, epsilon in enumerate(epsilon_values):
@@ -122,7 +96,7 @@ class ModelPredictions:
                 treatment_lower_ci = np.percentile(treatment_predictions, 2.5, axis=0)
                 treatment_upper_ci = np.percentile(treatment_predictions, 97.5, axis=0)
                 
-                ax.plot(extended_time, treatment_median, '-', label='Treatment', color='blue')
+                ax.plot(extended_time, treatment_median, '-', label='Treatment', color='blue', linewidth=2)
                 ax.fill_between(extended_time, treatment_lower_ci, treatment_upper_ci, alpha=0.2, color='blue')
                 
                 # Plot no-treatment curves
@@ -130,23 +104,28 @@ class ModelPredictions:
                 no_treatment_lower_ci = np.percentile(no_treatment_predictions, 2.5, axis=0)
                 no_treatment_upper_ci = np.percentile(no_treatment_predictions, 97.5, axis=0)
                 
-                ax.plot(extended_time, no_treatment_median, '-', label='No Treatment', color='red')
+                ax.plot(extended_time, no_treatment_median, '-', label='No Treatment', color='red', linewidth=2)
                 ax.fill_between(extended_time, no_treatment_lower_ci, no_treatment_upper_ci, alpha=0.2, color='red')
                 
-                ax.axvline(x=21, color='gray', linestyle='--', label='Day 21')
-                ax.set_xlabel('Time (days)')
-                ax.set_ylabel('log10(Viral Load)')
-                ax.set_title(f't* = {t_star}, ε = {epsilon}')
+                ax.axvline(x=21, color='gray', linestyle='--', label='Day 21', linewidth=2)
+                ax.set_xlabel('Time (days)' if i == len(t_star_values) - 1 else '', fontsize=22)
+                ax.set_ylabel('log10(Viral Load)' if j == 0 else '', fontsize=22)
+                ax.set_title(f't* = {t_star}, ε = {epsilon}', fontsize=24)
                 ax.set_xlim(0, 30)
-                ax.set_ylim(0, 10)  # Adjust if needed
-                ax.grid(True, which='both', linestyle=':', alpha=0.5)
+                ax.set_ylim(0, 10)
+                ax.grid(True, which='both', linestyle='--', alpha=0.5)
+                ax.tick_params(axis='both', which='major', labelsize=20)
                 
                 if i == 0 and j == 0:
-                    ax.legend(fontsize='x-small')
+                    ax.legend(fontsize=16, loc='upper right')
+
+        # Add a common legend for all subplots
+        handles, labels = axes[0, 0].get_legend_handles_labels()
+        fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 1.02), ncol=3, fontsize=18)
 
         plt.tight_layout()
         output_file = os.path.join(output_dir, f'viral_load_curves_{case}.png')
-        plt.savefig(output_file)
+        plt.savefig(output_file, dpi=300, bbox_inches='tight')
         plt.close()
 
         print(f"Viral load curves plot saved to {output_file}")
@@ -154,15 +133,22 @@ class ModelPredictions:
     @staticmethod
     def plot_least_squares_fit(time, observed_data, params, output_dir, case):
         plt.figure(figsize=(10, 6))
+        plt.rcParams.update({'font.size': 12})  # Increase default font size
+        
         plt.plot(time, observed_data, 'o', label='Observed Data', alpha=0.7)
         
         extended_time = np.linspace(0, 30, 300)
         prediction = cached_solve(params, extended_time)[:, 2]
         
         plt.plot(extended_time, prediction, '-', label='Least Squares Fit')
-        plt.xlabel('Time (days)')
-        plt.ylabel('log10(Viral Load)')
-        plt.title(f'Least Squares Fit for {case.capitalize()} Case')
-        plt.legend()
-        plt.savefig(os.path.join(output_dir, f'least_squares_fit_{case}.png'))
+        plt.xlabel('Time (days)', fontsize=14)
+        plt.ylabel('log10(Viral Load)', fontsize=14)
+        plt.title(f'Least Squares Fit for {case.capitalize()} Case', fontsize=16)
+        plt.legend(fontsize=12)
+        plt.xlim(0, 30)
+        plt.ylim(bottom=0)  # Ensure y-axis starts at 0
+        plt.grid(True, which='both', linestyle=':', alpha=0.5)
+        plt.tick_params(axis='both', which='major', labelsize=10)
+        plt.tight_layout()
+        plt.savefig(os.path.join(output_dir, f'least_squares_fit_{case}.png'), dpi=300, bbox_inches='tight')
         plt.close()

@@ -4,23 +4,22 @@ from scipy.optimize import minimize, least_squares
 from src.model.virus_model import cached_solve
 from config.config import Config
 
-def fit_gamma_to_median_iqr(median, iqr, offset=1):
+def fit_gamma_to_mean_iqr(mean, iqr):
     def objective(params):
         shape, scale = params
-        q1, q3 = gamma.ppf([0.25, 0.75], shape, scale=scale) + offset
-        model_median = gamma.ppf(0.5, shape, scale=scale) + offset
-        return ((q3 - q1) - (iqr[1] - iqr[0]))**2 + (model_median - (median + offset))**2
+        model_mean = shape * scale
+        model_iqr = gamma.ppf(0.75, shape, scale=scale) - gamma.ppf(0.25, shape, scale=scale)
+        return (model_mean - mean)**2 + (model_iqr - (iqr[1] - iqr[0]))**2
 
     result = minimize(objective, [2, 2], method='Nelder-Mead')
     return result.x
 
 def sample_t_star():
-    median = 3.5
+    mean = 4.8
     iqr = (2, 6)
-    offset = 1
-    shape, scale = fit_gamma_to_median_iqr(median, iqr, offset)
-    t_star = gamma.rvs(shape, scale=scale) + offset
-    return np.clip(t_star, offset, 21)
+    shape, scale = fit_gamma_to_mean_iqr(mean, iqr)
+    t_star = gamma.rvs(shape, scale=scale)
+    return max(t_star, 0.1)  # Ensure t_star is at least 0.1
 
 def calculate_time_to_threshold(solution, time, threshold=4):
     log_V = solution[:, 2]

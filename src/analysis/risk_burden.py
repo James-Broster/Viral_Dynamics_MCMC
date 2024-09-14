@@ -142,7 +142,7 @@ def calculate_risk_burden_metrics(all_viral_loads, thresholds, periods):
 def calculate_metrics(all_viral_loads, threshold, period):
     days_unnecessarily_isolated = [[calculate_days_unnecessarily_isolated(vl, threshold, period) for vl in chain] for chain in all_viral_loads]
     days_above_threshold_post_release = [[calculate_days_above_threshold(vl, threshold, period) for vl in chain] for chain in all_viral_loads]
-    proportion_above_threshold_at_release = [[int(vl[period*10] > threshold) for vl in chain] for chain in all_viral_loads]
+    proportion_above_threshold_at_release = [[int(is_above_threshold_at_release(vl, threshold, period)) for vl in chain] for chain in all_viral_loads]
     risk_scores = [[calculate_risk_score(vl, threshold, period) for vl in chain] for chain in all_viral_loads]
 
     flat_days_isolated = [day for chain in days_unnecessarily_isolated for day in chain]
@@ -157,16 +157,16 @@ def calculate_metrics(all_viral_loads, threshold, period):
         'risk_score': calculate_stats(flat_risk_scores)
     }
 
-def calculate_stats(data, is_proportion=False):
+def calculate_stats(data, is_proportion=False, decimal_places=4):
     if is_proportion:
         n = len(data)
         successes = sum(data)
         proportion = successes / n
         ci_lower, ci_upper = proportion_confint(successes, n, method='wilson')
         return {
-            'avg': proportion,
-            'ci_lower': ci_lower,
-            'ci_upper': ci_upper
+            'avg': round(proportion, decimal_places),
+            'ci_lower': round(ci_lower, decimal_places),
+            'ci_upper': round(ci_upper, decimal_places)
         }
     else:
         return {
@@ -174,6 +174,19 @@ def calculate_stats(data, is_proportion=False):
             'ci_lower': np.percentile(data, 2.5),
             'ci_upper': np.percentile(data, 97.5)
         }
+
+
+def is_above_threshold_at_release(viral_load, threshold, period):
+    release_index = period * 10  # Assuming 10 points per day
+    future_indices = range(release_index, len(viral_load))
+    
+    # Check if viral load is above threshold at release or will be above in the future
+    for i in future_indices:
+        if viral_load[i] > threshold:
+            # Check if this is a peak (i.e., viral load decreases after this point)
+            if i == len(viral_load) - 1 or viral_load[i] > viral_load[i+1]:
+                return True
+    return False
 
 def calculate_days_unnecessarily_isolated(viral_load, threshold, period):
     crossing_day = find_crossing_day(viral_load, threshold)
@@ -256,9 +269,9 @@ def calculate_risk_burden_for_epsilon_tstar(chains, time_extended, base_output_d
     logging.info("Completed calculating risk burden for all scenarios.")
     return results, no_treatment_results
 
-def calculate_risk_burden_sampled_tstar(chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, num_samples=350):
+def calculate_risk_burden_sampled_tstar(chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, num_samples=1):
     config = Config()
-    num_cores = 20 # Or however many cores you want to use
+    num_cores = 6 # Or however many cores you want to use
     logging.info(f"Starting calculate_risk_burden_sampled_tstar with {num_samples} samples per epsilon using {num_cores} cores...")
     start_time = time.time()
 
@@ -368,9 +381,9 @@ def write_results_to_csv(risk_burden, output_dir, case, epsilon, t_star):
                     result = risk_burden[threshold][isolation_day][metric]
                     writer.writerow([
                         isolation_day,
-                        result['avg'],
-                        result['ci_lower'],
-                        result['ci_upper']
+                        f"{result['avg']}",
+                        f"{result['ci_lower']}",
+                        f"{result['ci_upper']}"
                     ])
             
             print(f"CSV file for threshold {threshold}, {metric} saved to {filepath}")

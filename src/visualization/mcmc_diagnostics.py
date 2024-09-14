@@ -6,6 +6,7 @@ from scipy.stats import truncnorm
 from config.config import Config
 
 class MCMCDiagnostics:
+
     @staticmethod
     def plot_all_diagnostics(chains_f, chains_nf, burn_in_period, r_hat_f, r_hat_nf, 
                              acceptance_rates_over_time_f, acceptance_rates_over_time_nf, 
@@ -34,54 +35,65 @@ class MCMCDiagnostics:
     @staticmethod
     def plot_trace(chains, param_index, param_name, burn_in_period, output_dir, case):
         plt.figure(figsize=(12, 6))
+        plt.rcParams.update({'font.size': 12})  # Increase default font size
         colors = ['blue', 'green', 'red', 'purple']
         for i, chain in enumerate(chains):
             plt.plot([params[param_index] for params in chain], color=colors[i], alpha=0.6, label=f'Chain {i + 1}')
         plt.axvline(x=burn_in_period, color='black', linestyle='--', label='End of Burn-in Period')
-        plt.xlabel('Iteration')
-        plt.ylabel(param_name)
-        plt.title(f'Trace of {param_name} over Iterations ({case})')
-        plt.legend()
-        plt.savefig(os.path.join(output_dir, f'trace_plot_{param_name}_{case}.png'))
+        plt.xlabel('Iteration', fontsize=14)
+        plt.ylabel(param_name, fontsize=14)
+        plt.title(f'Trace of {param_name} over Iterations ({case})', fontsize=16)
+        plt.legend(fontsize=10)
+        plt.tick_params(axis='both', which='major', labelsize=10)
+        plt.tight_layout()
+        plt.savefig(os.path.join(output_dir, f'trace_plot_{param_name}_{case}.png'), dpi=300, bbox_inches='tight')
         plt.close()
-    
+
     @staticmethod
     def plot_acceptance_rates(acceptance_rates, param_names, output_dir, case):
         num_params = len(param_names)
         num_iterations = len(acceptance_rates)
         
         plt.figure(figsize=(12, 8))
+        plt.rcParams.update({'font.size': 12})  # Increase default font size
         for i, param_name in enumerate(param_names):
             plt.plot(range(num_iterations), acceptance_rates[:, i], label=param_name, alpha=0.7)
         
-        plt.xlabel('Iteration')
-        plt.ylabel('Acceptance Rate')
-        plt.title(f'Acceptance Rates Over Time ({case})')
-        plt.legend()
+        plt.xlabel('Iteration', fontsize=14)
+        plt.ylabel('Acceptance Rate', fontsize=14)
+        plt.title(f'Acceptance Rates Over Time ({case})', fontsize=16)
+        plt.legend(fontsize=10)
         plt.grid(True, which='both', linestyle='--', linewidth=0.5)
         plt.ylim(0, 1)
+        plt.tick_params(axis='both', which='major', labelsize=10)
         plt.tight_layout()
-        plt.savefig(os.path.join(output_dir, f'acceptance_rates_over_time_{case}.png'))
+        plt.savefig(os.path.join(output_dir, f'acceptance_rates_over_time_{case}.png'), dpi=300, bbox_inches='tight')
         plt.close()
 
     @staticmethod
     def plot_rhat(r_hat, param_names, output_dir, case):
         plt.figure(figsize=(10, 6))
+        plt.rcParams.update({'font.size': 12})  # Increase default font size
         plt.bar(param_names, r_hat)
         plt.axhline(y=1.1, color='r', linestyle='--')
-        plt.ylabel('R-hat')
-        plt.title(f'R-hat Values for Each Parameter ({case})')
-        plt.savefig(os.path.join(output_dir, f'rhat_plot_{case}.png'))
+        plt.ylabel('R-hat', fontsize=14)
+        plt.title(f'R-hat Values for Each Parameter ({case})', fontsize=16)
+        plt.tick_params(axis='both', which='major', labelsize=10)
+        plt.ylim(bottom=0)  # Ensure y-axis starts at 0
+        plt.tight_layout()
+        plt.savefig(os.path.join(output_dir, f'rhat_plot_{case}.png'), dpi=300, bbox_inches='tight')
         plt.close()
 
     @staticmethod
     def plot_correlation_heatmap(correlations, param_names, output_dir, case):
         plt.figure(figsize=(10, 8))
+        plt.rcParams.update({'font.size': 12})  # Increase default font size
         sns.heatmap(correlations, annot=True, cmap='coolwarm', vmin=-1, vmax=1, center=0,
                     xticklabels=param_names, yticklabels=param_names)
-        plt.title(f'Parameter Correlations ({case})')
+        plt.title(f'Parameter Correlations ({case})', fontsize=16)
+        plt.tick_params(axis='both', which='major', labelsize=10)
         plt.tight_layout()
-        plt.savefig(os.path.join(output_dir, f'parameter_correlations_heatmap_{case}.png'))
+        plt.savefig(os.path.join(output_dir, f'parameter_correlations_heatmap_{case}.png'), dpi=300, bbox_inches='tight')
         plt.close()
 
     @staticmethod
@@ -91,6 +103,7 @@ class MCMCDiagnostics:
         
         i = config.PARAM_NAMES.index(param_name)
         plt.figure(figsize=(10, 6))
+        plt.rcParams.update({'font.size': 12})  # Increase default font size
         
         param_data = flattened_chains[:, i]
         
@@ -109,15 +122,17 @@ class MCMCDiagnostics:
         
         plt.fill_between(x, prior, alpha=0.2, color='red')
         
-        plt.xlabel(param_name)
-        plt.ylabel("Density")
-        plt.title(f"Posterior and Prior Distribution of {param_name} ({case})")
-        plt.legend()
+        plt.xlabel(param_name, fontsize=14)
+        plt.ylabel("Density", fontsize=14)
+        plt.title(f"Posterior and Prior Distribution of {param_name} ({case})", fontsize=16)
+        plt.legend(fontsize=10)
         
         plt.xlim(plot_min, plot_max)
         
         y_max = max(plt.gca().get_ylim()[1], np.max(prior))
         plt.ylim(0, y_max * 1.1)
         
-        plt.savefig(os.path.join(output_dir, f'histogram_{param_name}_{case}.png'))
+        plt.tick_params(axis='both', which='major', labelsize=10)
+        plt.tight_layout()
+        plt.savefig(os.path.join(output_dir, f'histogram_{param_name}_{case}.png'), dpi=300, bbox_inches='tight')
         plt.close()
