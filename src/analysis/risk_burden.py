@@ -89,26 +89,6 @@ def calculate_risk_and_burden(chains, isolation_periods, time_extended, threshol
     logging.info(f"Starting calculate_risk_and_burden for epsilon={epsilon}, t_star={t_star}...")
     start_time = time.time()
 
-    risk_burden = process_all_scenarios(chains, thresholds, isolation_periods, time_extended, debug_shapes, base_output_dir, epsilon, t_star)
-
-    # Determine the case (fatal or non-fatal) based on the base_output_dir
-    case = 'fatal' if 'fatal' in base_output_dir else 'non_fatal'
-    
-    # Create the csv_output_dir with the correct structure
-    csv_output_dir = os.path.join(base_output_dir, 'treatment_effects', 'csv_outputs')
-    
-    # Write results to CSV
-    write_results_to_csv(risk_burden, csv_output_dir, case, epsilon, t_star)
-
-    end_time = time.time()
-    logging.info(f"Completed calculate_risk_and_burden for epsilon={epsilon}, t_star={t_star}. Total time taken: {end_time - start_time:.2f} seconds")
-
-    return risk_burden
-
-def process_all_scenarios(chains, thresholds, periods, time_extended, debug_shapes, base_output_dir, epsilon, t_star):
-    logging.info(f"Starting to solve ODEs for all parameter sets with epsilon={epsilon}, t_star={t_star}...")
-    start_time = time.time()
-
     all_viral_loads = []
     for chain in chains:
         chain_viral_loads = []
@@ -123,19 +103,22 @@ def process_all_scenarios(chains, thresholds, periods, time_extended, debug_shap
 
     debug_shapes["all_viral_loads"] = [vl.shape for vl in all_viral_loads]
 
-    logging.info(f"Completed solving ODEs for all parameter sets. Time taken: {time.time() - start_time:.2f} seconds")
-
-    risk_burden = calculate_risk_burden_metrics(all_viral_loads, thresholds, periods)
-
-    return risk_burden
-
-def calculate_risk_burden_metrics(all_viral_loads, thresholds, periods):
     risk_burden = {threshold: {} for threshold in thresholds}
-
     for threshold in thresholds:
-        for period in periods:
-            metrics = calculate_metrics(all_viral_loads, threshold, period)
-            risk_burden[threshold][period] = metrics
+        for period in isolation_periods:
+            risk_burden[threshold][period] = calculate_metrics(all_viral_loads, threshold, period)
+
+    # Determine the case (fatal or non-fatal) based on the base_output_dir
+    case = 'fatal' if 'fatal' in base_output_dir else 'non_fatal'
+    
+    # Create the csv_output_dir with the correct structure
+    csv_output_dir = os.path.join(base_output_dir, 'treatment_effects', 'csv_outputs')
+    
+    # Write results to CSV
+    write_results_to_csv(risk_burden, csv_output_dir, case, epsilon, t_star)
+
+    end_time = time.time()
+    logging.info(f"Completed calculate_risk_and_burden for epsilon={epsilon}, t_star={t_star}. Total time taken: {end_time - start_time:.2f} seconds")
 
     return risk_burden
 
@@ -174,7 +157,6 @@ def calculate_stats(data, is_proportion=False, decimal_places=4):
             'ci_lower': np.percentile(data, 2.5),
             'ci_upper': np.percentile(data, 97.5)
         }
-
 
 def is_above_threshold_at_release(viral_load, threshold, period):
     release_index = period * 10  # Assuming 10 points per day
@@ -271,7 +253,7 @@ def calculate_risk_burden_for_epsilon_tstar(chains, time_extended, base_output_d
 
 def calculate_risk_burden_sampled_tstar(chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, num_samples=300):
     config = Config()
-    num_cores = 20 # Or however many cores you want to use
+    num_cores = 30 # Or however many cores you want to use
     logging.info(f"Starting calculate_risk_burden_sampled_tstar with {num_samples} samples per epsilon using {num_cores} cores...")
     start_time = time.time()
 
@@ -314,24 +296,24 @@ def calculate_risk_burden_sampled_tstar(chains, isolation_periods, time_extended
             logging.warning(f"Skipping failed result for epsilon={epsilon}, sample={sample_index}")
 
     for epsilon in config.EPSILON_VALUES:
-        for threshold in thresholds:
-            for period in isolation_periods:
-                for metric in METRICS:
-                    avg_values = results[epsilon][threshold][period][metric]['avg']
-                    ci_lower_values = results[epsilon][threshold][period][metric]['ci_lower']
-                    ci_upper_values = results[epsilon][threshold][period][metric]['ci_upper']
-                    if avg_values:
-                        results[epsilon][threshold][period][metric] = {
-                            'avg': np.mean(avg_values),
-                            'ci_lower': np.mean(ci_lower_values),
-                            'ci_upper': np.mean(ci_upper_values)
-                        }
-                    else:
-                        logging.warning(f"No valid results for epsilon={epsilon}, threshold={threshold}, period={period}, metric={metric}")
-                        results[epsilon][threshold][period][metric] = {
-                            'avg': np.nan,
-                            'ci_lower': np.nan,
-                            'ci_upper': np.nan
+            for threshold in thresholds:
+                for period in isolation_periods:
+                    for metric in METRICS:
+                        avg_values = results[epsilon][threshold][period][metric]['avg']
+                        ci_lower_values = results[epsilon][threshold][period][metric]['ci_lower']
+                        ci_upper_values = results[epsilon][threshold][period][metric]['ci_upper']
+                        if avg_values:
+                            results[epsilon][threshold][period][metric] = {
+                                'avg': np.mean(avg_values),
+                                'ci_lower': np.mean(ci_lower_values),
+                                'ci_upper': np.mean(ci_upper_values)
+                            }
+                        else:
+                            logging.warning(f"No valid results for epsilon={epsilon}, threshold={threshold}, period={period}, metric={metric}")
+                            results[epsilon][threshold][period][metric] = {
+                                'avg': np.nan,
+                                'ci_lower': np.nan,
+                                'ci_upper': np.nan
                         }
 
     end_time = time.time()
@@ -339,13 +321,15 @@ def calculate_risk_burden_sampled_tstar(chains, isolation_periods, time_extended
 
     return results, t_star_samples
 
+
+
 def process_single_task(task, chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir):
     epsilon, sample_index = task
     np.random.seed()  # Ensure different random seeds for each process
     
     try:
         t_star = sample_t_star()
-        risk_burden = process_all_scenarios(chains, thresholds, isolation_periods, time_extended, debug_shapes, base_output_dir, epsilon, t_star)
+        risk_burden = calculate_risk_and_burden(chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, epsilon, t_star)
         
         epsilon_result = {threshold: {period: {metric: risk_burden[threshold][period][metric] for metric in METRICS} 
                                       for period in isolation_periods} 
