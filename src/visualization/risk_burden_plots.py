@@ -52,6 +52,7 @@ class RiskBurdenPlots:
 
         print(f"Risk and burden plots saved in {output_dir}")
 
+
     @staticmethod
     def plot_risk_burden_epsilon_tstar(results, no_treatment_results, case, output_dir):
         config = Config()
@@ -62,9 +63,9 @@ class RiskBurdenPlots:
             'risk_score'
         ]
         titles = [
-            'Days Unnecessarily Isolated',
-            'Days Above Threshold Post-Release',
-            'Proportion Above Threshold at Release',
+            'Days',
+            'Days',
+            'Proportion',
             'Cumulative Risk Score'
         ]
 
@@ -73,10 +74,10 @@ class RiskBurdenPlots:
 
         threshold_colors = {3: 'blue', 4: 'orange', 5: 'green'}
 
-        plt.rcParams.update({'font.size': 22})  # Increase default font size
+        plt.rcParams.update({'font.size': 26})  # Increase default font size
 
         for metric, title in zip(metrics, titles):
-            fig, axes = plt.subplots(len(t_star_values), len(epsilon_values), figsize=(20, 28), squeeze=False)
+            fig, axes = plt.subplots(len(t_star_values), len(epsilon_values), figsize=(24, 32), squeeze=False)
             
             for i, t_star in enumerate(t_star_values):
                 for j, epsilon in enumerate(epsilon_values):
@@ -98,11 +99,11 @@ class RiskBurdenPlots:
                         y_no_treatment = [no_treatment_results[threshold][period][metric]['avg'] for period in x]
                         ax.plot(x, y_no_treatment, linestyle=':', color=color, label=f'{threshold} log10 copies/mL (No Treatment)', linewidth=2)
 
-                    ax.set_xlabel('Isolation Period (days)' if i == len(t_star_values) - 1 else '', fontsize=26)
-                    ax.set_ylabel(title if j == 0 else '', fontsize=26)
-                    ax.set_title(f't* = {t_star}, ε = {epsilon}', fontsize=28, pad=20)
+                    ax.set_xlabel('Isolation Period (days)' if i == len(t_star_values) - 1 else '', fontsize=32)
+                    ax.set_ylabel(title if j == 0 else '', fontsize=32)
+                    ax.set_title(f't* = {t_star}, ε = {epsilon}', fontsize=34, pad=20)
                     ax.grid(True, which='both', linestyle='--', alpha=0.5)
-                    ax.tick_params(axis='both', which='major', labelsize=24)
+                    ax.tick_params(axis='both', which='major', labelsize=30)
 
                     if 'proportion' in metric:
                         ax.set_ylim(0, 1)
@@ -114,10 +115,10 @@ class RiskBurdenPlots:
 
             # Add a common legend for all subplots
             handles, labels = ax.get_legend_handles_labels()
-            fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 1.02), ncol=3, fontsize=26)
+            fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 1.03), ncol=3, fontsize=32)
 
             plt.tight_layout()
-            plt.subplots_adjust(top=0.95)  # Slightly reduced top margin
+            plt.subplots_adjust(top=0.94)
             output_file = os.path.join(output_dir, f'{metric}_{case}.png')
             plt.savefig(output_file, dpi=300, bbox_inches='tight')
             plt.close(fig)
@@ -134,18 +135,18 @@ class RiskBurdenPlots:
             'risk_score'
         ]
         titles = [
-            'Days Unnecessarily Isolated',
-            'Days Above Threshold Post-Release',
-            'Proportion Above Threshold at Release',
+            'Days',
+            'Days',
+            'Proportion',
             'Cumulative Risk Score'
         ]
 
         epsilon_values = config.EPSILON_VALUES
         thresholds = config.VIRAL_LOAD_THRESHOLDS
 
-        plt.rcParams.update({'font.size': 22})  # Increase default font size
+        plt.rcParams.update({'font.size': 26})  # Increase default font size
 
-        fig, axes = plt.subplots(len(metrics) + 1, len(epsilon_values), figsize=(20, 33), squeeze=False)
+        fig, axes = plt.subplots(len(metrics) + 1, len(epsilon_values), figsize=(24, 38), squeeze=False)
         
         threshold_colors = {3: 'blue', 4: 'orange', 5: 'green'}
 
@@ -168,11 +169,11 @@ class RiskBurdenPlots:
                     y_no_treatment = [no_treatment_results[threshold][period][metric]['avg'] for period in x]
                     ax.plot(x, y_no_treatment, linestyle=':', color=color, label=f'{threshold} log10 copies/mL (No Treatment)', linewidth=2)
                 
-                ax.set_xlabel('Isolation Period (days)' if i == len(metrics) - 1 else '', fontsize=26)
-                ax.set_ylabel(title if j == 0 else '', fontsize=26)
-                ax.set_title(f'ε = {epsilon}' if i == 0 else '', fontsize=28, pad=20)
+                ax.set_xlabel('Isolation Period (days)' if i == len(metrics) - 1 else '', fontsize=32)
+                ax.set_ylabel(title if j == 0 else '', fontsize=32)
+                ax.set_title(f'ε = {epsilon}' if i == 0 else '', fontsize=34, pad=20)
                 ax.grid(True, which='both', linestyle='--', alpha=0.5)
-                ax.tick_params(axis='both', which='major', labelsize=24)
+                ax.tick_params(axis='both', which='major', labelsize=30)
                 
                 if 'proportion' in metric:
                     ax.set_ylim(0, 1)
@@ -186,17 +187,17 @@ class RiskBurdenPlots:
         for j, epsilon in enumerate(epsilon_values):
             ax = axes[-1, j]
             ax.hist(t_star_samples[epsilon], bins=20, edgecolor='black')
-            ax.set_xlabel('T* Value', fontsize=26)
-            ax.set_ylabel('Frequency' if j == 0 else '', fontsize=26)
-            ax.set_title(f'T* Distribution (ε = {epsilon})', fontsize=28, pad=20)
-            ax.tick_params(axis='both', which='major', labelsize=24)
+            ax.set_xlabel('T* Value', fontsize=32)
+            ax.set_ylabel('Frequency' if j == 0 else '', fontsize=32)
+            ax.set_title(f'T* Distribution (ε = {epsilon})', fontsize=34, pad=20)
+            ax.tick_params(axis='both', which='major', labelsize=30)
 
         # Add a common legend for all subplots
         handles, labels = axes[0, 0].get_legend_handles_labels()
-        fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 1.02), ncol=3, fontsize=26)
+        fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 1.04), ncol=3, fontsize=32)
 
         plt.tight_layout()
-        plt.subplots_adjust(top=0.97)  # Slightly reduced top margin
+        plt.subplots_adjust(top=0.96)
         output_file = os.path.join(output_dir, f'risk_burden_sampled_tstar_{case}.png')
         plt.savefig(output_file, dpi=300, bbox_inches='tight')
         plt.close(fig)
