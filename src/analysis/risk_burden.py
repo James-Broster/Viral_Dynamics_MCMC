@@ -85,7 +85,7 @@ def post_mcmc_analysis(chains, time_extended, epsilon_values=[0, 0.3, 0.6, 0.9])
     logging.info(f"post_mcmc_analysis completed with results for {len(all_results)} chains")
     return all_results
 
-def calculate_risk_and_burden(chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, epsilon=0, t_star=0):
+def calculate_risk_and_burden(chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, epsilon=0, t_star=0, save_to_csv=True):
     logging.info(f"Starting calculate_risk_and_burden for epsilon={epsilon}, t_star={t_star}...")
     start_time = time.time()
 
@@ -114,8 +114,9 @@ def calculate_risk_and_burden(chains, isolation_periods, time_extended, threshol
     # Create the csv_output_dir with the correct structure
     csv_output_dir = os.path.join(base_output_dir, 'treatment_effects', 'csv_outputs')
     
-    # Write results to CSV
-    write_results_to_csv(risk_burden, csv_output_dir, case, epsilon, t_star)
+    # Write results to CSV if save_to_csv is True
+    if save_to_csv:
+        write_results_to_csv(risk_burden, csv_output_dir, case, epsilon, t_star)
 
     end_time = time.time()
     logging.info(f"Completed calculate_risk_and_burden for epsilon={epsilon}, t_star={t_star}. Total time taken: {end_time - start_time:.2f} seconds")
@@ -251,7 +252,7 @@ def calculate_risk_burden_for_epsilon_tstar(chains, time_extended, base_output_d
     logging.info("Completed calculating risk burden for all scenarios.")
     return results, no_treatment_results
 
-def calculate_risk_burden_sampled_tstar(chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, num_samples=300):
+def calculate_risk_burden_sampled_tstar(chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, num_samples=300, save_to_csv=False):
     config = Config()
     num_cores = 30 # Or however many cores you want to use
     logging.info(f"Starting calculate_risk_burden_sampled_tstar with {num_samples} samples per epsilon using {num_cores} cores...")
@@ -267,7 +268,8 @@ def calculate_risk_burden_sampled_tstar(chains, isolation_periods, time_extended
                            time_extended=time_extended, 
                            thresholds=thresholds, 
                            debug_shapes=debug_shapes, 
-                           base_output_dir=base_output_dir)
+                           base_output_dir=base_output_dir,
+                           save_to_csv=save_to_csv)
 
     with Pool(processes=num_cores) as pool:
         all_results = list(tqdm(pool.imap(process_task, all_tasks), 
@@ -314,7 +316,7 @@ def calculate_risk_burden_sampled_tstar(chains, isolation_periods, time_extended
                                 'avg': np.nan,
                                 'ci_lower': np.nan,
                                 'ci_upper': np.nan
-                        }
+                            }
 
     end_time = time.time()
     logging.info(f"Completed calculate_risk_burden_sampled_tstar. Total time taken: {end_time - start_time:.2f} seconds")
@@ -323,13 +325,13 @@ def calculate_risk_burden_sampled_tstar(chains, isolation_periods, time_extended
 
 
 
-def process_single_task(task, chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir):
+def process_single_task(task, chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, save_to_csv):
     epsilon, sample_index = task
     np.random.seed()  # Ensure different random seeds for each process
     
     try:
         t_star = sample_t_star()
-        risk_burden = calculate_risk_and_burden(chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, epsilon, t_star)
+        risk_burden = calculate_risk_and_burden(chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, epsilon, t_star, save_to_csv=save_to_csv)
         
         epsilon_result = {threshold: {period: {metric: risk_burden[threshold][period][metric] for metric in METRICS} 
                                       for period in isolation_periods} 
@@ -339,6 +341,7 @@ def process_single_task(task, chains, isolation_periods, time_extended, threshol
     except Exception as e:
         logging.error(f"Error processing task (epsilon={epsilon}, sample={sample_index}): {str(e)}")
         return epsilon, sample_index, None, None
+
 
 def write_results_to_csv(risk_burden, output_dir, case, epsilon, t_star):
     metrics = [
