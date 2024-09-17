@@ -3,6 +3,8 @@ from scipy.integrate import odeint
 import functools
 
 class VirusModel:
+
+
     @staticmethod
     def ode(y, t, alpha_f, beta, delta_f, gamma, epsilon, t_star):
         f1, f2, V = y
@@ -32,6 +34,8 @@ class VirusModel:
         parameters_tuple = tuple(parameters)
         time_tuple = tuple(time)
         return VirusModel._solve_cached(parameters_tuple, time_tuple, epsilon, t_star)
+    
+    
 
 def cached_solve(params, time, epsilon=0, t_star=0):
     return VirusModel.solve(params, time, epsilon, t_star)

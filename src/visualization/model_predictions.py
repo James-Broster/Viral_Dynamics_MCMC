@@ -14,7 +14,9 @@ class ModelPredictions:
         pass
 
     @staticmethod
-    def plot_model_predictions(time_f, time_nf, observed_data_f, observed_data_nf, chains_f, chains_nf, burn_in_period, fatal_dir, non_fatal_dir, y_min=0, y_max=10):
+    def plot_model_predictions(time_f, time_nf, observed_data_f, observed_data_nf, chains_f, chains_nf, burn_in_period, fatal_dir, non_fatal_dir, y_min=0, y_max=10,
+                            default_fontsize=22, xlabel_fontsize=22, ylabel_fontsize=22, 
+                            title_fontsize=23, legend_fontsize=24, tick_fontsize=19):
         print("Starting plot_model_predictions")
         extended_time = np.linspace(0, 30, 300)
 
@@ -26,7 +28,7 @@ class ModelPredictions:
             ModelPredictions.calculate_and_save_parameter_stats(chains, burn_in_period, output_dir, label.lower())
             
             plt.figure(figsize=(12, 8))
-            plt.rcParams.update({'font.size': 14})  # Increase default font size
+            plt.rcParams.update({'font.size': default_fontsize})  # Set default font size
             
             plt.plot(time, observed_data, 'o', label=f'Observed Data ({label})', color=color, alpha=0.7)
             
@@ -46,22 +48,25 @@ class ModelPredictions:
             plt.plot(extended_time, median, '-', label=f'RNA copies/ml ({label})', color=color)
             plt.fill_between(extended_time, lower_ci, upper_ci, alpha=0.2, color=color)
         
-            plt.xlabel('Time (days)', fontsize=16)
-            plt.ylabel('log10(Viral Load)', fontsize=16)
-            plt.title(f'Model Predictions for Viral Load ({label})', fontsize=18)
-            plt.legend(fontsize=12)
+            plt.xlabel('Time (days)', fontsize=xlabel_fontsize)
+            plt.ylabel('log10(Viral Load)', fontsize=ylabel_fontsize)
+            plt.title(f'Model Predictions for Viral Load ({label})', fontsize=title_fontsize)
+            plt.legend(fontsize=legend_fontsize)
             plt.xlim(0, 30)
             plt.ylim(y_min, y_max)
             plt.grid(True, which='both', linestyle=':', alpha=0.5)
+            plt.tick_params(axis='both', which='major', labelsize=tick_fontsize)
             
             plt.tight_layout()
             plt.savefig(os.path.join(output_dir, f'model_predictions_viral_load_{label.lower()}.png'), dpi=600, bbox_inches='tight')
             plt.close()
 
         print("plot_model_predictions completed")
-        
+
     @staticmethod
-    def plot_viral_load_curves(chains, burn_in_period, output_dir, case, time_extended):
+    def plot_viral_load_curves(chains, burn_in_period, output_dir, case, time_extended,
+                            default_fontsize=25, xlabel_fontsize=27, ylabel_fontsize=26, 
+                            title_fontsize=27, legend_fontsize=28, tick_fontsize=23):
         config = Config()
         print(f"Starting plot_viral_load_curves for {case} case")
         
@@ -73,7 +78,7 @@ class ModelPredictions:
         flattened_chains = latter_chains.reshape(-1, latter_chains.shape[-1])
 
         fig, axes = plt.subplots(len(t_star_values), len(epsilon_values), figsize=(20, 25), squeeze=False)
-        plt.rcParams.update({'font.size': 18})  # Increase default font size
+        plt.rcParams.update({'font.size': default_fontsize})  # Set default font size
 
         for i, t_star in enumerate(t_star_values):
             for j, epsilon in enumerate(epsilon_values):
@@ -107,25 +112,24 @@ class ModelPredictions:
                 ax.plot(extended_time, no_treatment_median, '-', label='No Treatment', color='red', linewidth=2)
                 ax.fill_between(extended_time, no_treatment_lower_ci, no_treatment_upper_ci, alpha=0.2, color='red')
                 
-                ax.axvline(x=21, color='gray', linestyle='--', label='Day 21', linewidth=2)
-                ax.set_xlabel('Time (days)' if i == len(t_star_values) - 1 else '', fontsize=22)
-                ax.set_ylabel('log10(Viral Load)' if j == 0 else '', fontsize=22)
-                ax.set_title(f't* = {t_star}, ε = {epsilon}', fontsize=24)
+                ax.set_xlabel('Time (days)' if i == len(t_star_values) - 1 else '', fontsize=xlabel_fontsize)
+                ax.set_ylabel('log10(Viral Load)' if j == 0 else '', fontsize=ylabel_fontsize)
+                ax.set_title(f't* = {t_star}, ε = {epsilon}', fontsize=title_fontsize)
                 ax.set_xlim(0, 30)
                 ax.set_ylim(0, 10)
                 ax.grid(True, which='both', linestyle='--', alpha=0.5)
-                ax.tick_params(axis='both', which='major', labelsize=20)
+                ax.tick_params(axis='both', which='major', labelsize=tick_fontsize)
                 
                 if i == 0 and j == 0:
-                    ax.legend(fontsize=16, loc='upper right')
+                    ax.legend(fontsize=legend_fontsize, loc='upper right')
 
         # Add a common legend for all subplots
         handles, labels = axes[0, 0].get_legend_handles_labels()
-        fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 1.02), ncol=3, fontsize=18)
+        fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 1.02), ncol=3, fontsize=legend_fontsize)
 
         plt.tight_layout()
         output_file = os.path.join(output_dir, f'viral_load_curves_{case}.png')
-        plt.savefig(output_file, dpi=300, bbox_inches='tight')
+        plt.savefig(output_file, dpi=600, bbox_inches='tight')
         plt.close()
 
         print(f"Viral load curves plot saved to {output_file}")

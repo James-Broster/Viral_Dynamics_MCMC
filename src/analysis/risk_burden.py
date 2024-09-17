@@ -10,9 +10,10 @@ import csv
 from scipy import stats
 from statsmodels.stats.proportion import proportion_confint
 from src.model.virus_model import cached_solve
-from src.utils.statistical_utils import sample_t_star
+from src.utils.statistical_utils import sample_t_star, fit_gamma_to_mean_iqr
 from config.config import Config
 from src.visualization.risk_burden_plots import RiskBurdenPlots
+from scipy.stats import gamma
 
 def analyze_chains(chains_f, chains_nf, burn_in_period, time_extended):
     config = Config()
@@ -154,7 +155,7 @@ def calculate_stats(data, is_proportion=False, decimal_places=4):
         }
     else:
         return {
-            'avg': np.mean(data),
+            'avg': np.median(data),
             'ci_lower': np.percentile(data, 2.5),
             'ci_upper': np.percentile(data, 97.5)
         }
@@ -252,15 +253,26 @@ def calculate_risk_burden_for_epsilon_tstar(chains, time_extended, base_output_d
     logging.info("Completed calculating risk burden for all scenarios.")
     return results, no_treatment_results
 
-def calculate_risk_burden_sampled_tstar(chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, num_samples=300, save_to_csv=False):
+
+def calculate_risk_burden_fixed_tstar(chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, save_to_csv=False):
     config = Config()
-    num_cores = 30 # Or however many cores you want to use
-    logging.info(f"Starting calculate_risk_burden_sampled_tstar with {num_samples} samples per epsilon using {num_cores} cores...")
+    num_cores = 30  # Or however many cores you want to use
+    logging.info(f"Starting calculate_risk_burden_fixed_tstar using {num_cores} cores...")
     start_time = time.time()
 
-    all_tasks = [(epsilon, sample_index) 
+    # Generate fixed t_star values
+    t_star_values = np.arange(0, 30.5, 0.5)
+
+    # Calculate weights for each t_star value
+    mean = 4.8
+    iqr = (2, 6)
+    shape, scale = fit_gamma_to_mean_iqr(mean, iqr)
+    weights = gamma.pdf(t_star_values, shape, scale=scale)
+    weights /= np.sum(weights)  # Normalize weights
+
+    all_tasks = [(epsilon, t_star) 
                  for epsilon in config.EPSILON_VALUES 
-                 for sample_index in range(num_samples)]
+                 for t_star in t_star_values]
 
     process_task = partial(process_single_task, 
                            chains=chains, 
@@ -274,73 +286,49 @@ def calculate_risk_burden_sampled_tstar(chains, isolation_periods, time_extended
     with Pool(processes=num_cores) as pool:
         all_results = list(tqdm(pool.imap(process_task, all_tasks), 
                                 total=len(all_tasks),
-                                desc="Processing epsilon-sample pairs"))
+                                desc="Processing epsilon-tstar pairs"))
 
-    expected_results = len(config.EPSILON_VALUES) * num_samples
+    expected_results = len(config.EPSILON_VALUES) * len(t_star_values)
     assert len(all_results) == expected_results, f"Expected {expected_results} results, but got {len(all_results)}"
 
-    results = {epsilon: {threshold: {period: {metric: {'avg': [], 'ci_lower': [], 'ci_upper': []} for metric in METRICS} 
+    results = {epsilon: {threshold: {period: {metric: {'avg': 0, 'ci_lower': 0, 'ci_upper': 0} for metric in METRICS} 
                                      for period in isolation_periods} 
                          for threshold in thresholds} 
                for epsilon in config.EPSILON_VALUES}
-    t_star_samples = {epsilon: [] for epsilon in config.EPSILON_VALUES}
 
-    for epsilon, sample_index, epsilon_result, t_star in all_results:
-        if epsilon_result is not None and t_star is not None:
-            t_star_samples[epsilon].append(t_star)
+    for epsilon, t_star, epsilon_result in all_results:
+        if epsilon_result is not None:
+            weight = weights[np.where(t_star_values == t_star)[0][0]]
             for threshold in thresholds:
                 for period in isolation_periods:
                     for metric in METRICS:
-                        results[epsilon][threshold][period][metric]['avg'].append(epsilon_result[threshold][period][metric]['avg'])
-                        results[epsilon][threshold][period][metric]['ci_lower'].append(epsilon_result[threshold][period][metric]['ci_lower'])
-                        results[epsilon][threshold][period][metric]['ci_upper'].append(epsilon_result[threshold][period][metric]['ci_upper'])
+                        results[epsilon][threshold][period][metric]['avg'] += epsilon_result[threshold][period][metric]['avg'] * weight
+                        results[epsilon][threshold][period][metric]['ci_lower'] += epsilon_result[threshold][period][metric]['ci_lower'] * weight
+                        results[epsilon][threshold][period][metric]['ci_upper'] += epsilon_result[threshold][period][metric]['ci_upper'] * weight
         else:
-            logging.warning(f"Skipping failed result for epsilon={epsilon}, sample={sample_index}")
-
-    for epsilon in config.EPSILON_VALUES:
-            for threshold in thresholds:
-                for period in isolation_periods:
-                    for metric in METRICS:
-                        avg_values = results[epsilon][threshold][period][metric]['avg']
-                        ci_lower_values = results[epsilon][threshold][period][metric]['ci_lower']
-                        ci_upper_values = results[epsilon][threshold][period][metric]['ci_upper']
-                        if avg_values:
-                            results[epsilon][threshold][period][metric] = {
-                                'avg': np.mean(avg_values),
-                                'ci_lower': np.mean(ci_lower_values),
-                                'ci_upper': np.mean(ci_upper_values)
-                            }
-                        else:
-                            logging.warning(f"No valid results for epsilon={epsilon}, threshold={threshold}, period={period}, metric={metric}")
-                            results[epsilon][threshold][period][metric] = {
-                                'avg': np.nan,
-                                'ci_lower': np.nan,
-                                'ci_upper': np.nan
-                            }
+            logging.warning(f"Skipping failed result for epsilon={epsilon}, t_star={t_star}")
 
     end_time = time.time()
-    logging.info(f"Completed calculate_risk_burden_sampled_tstar. Total time taken: {end_time - start_time:.2f} seconds")
+    logging.info(f"Completed calculate_risk_burden_fixed_tstar. Total time taken: {end_time - start_time:.2f} seconds")
 
-    return results, t_star_samples
+    return results, t_star_values, weights
 
 
 
 def process_single_task(task, chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, save_to_csv):
-    epsilon, sample_index = task
-    np.random.seed()  # Ensure different random seeds for each process
+    epsilon, t_star = task
     
     try:
-        t_star = sample_t_star()
         risk_burden = calculate_risk_and_burden(chains, isolation_periods, time_extended, thresholds, debug_shapes, base_output_dir, epsilon, t_star, save_to_csv=save_to_csv)
         
         epsilon_result = {threshold: {period: {metric: risk_burden[threshold][period][metric] for metric in METRICS} 
                                       for period in isolation_periods} 
                           for threshold in thresholds}
         
-        return epsilon, sample_index, epsilon_result, t_star
+        return epsilon, t_star, epsilon_result
     except Exception as e:
-        logging.error(f"Error processing task (epsilon={epsilon}, sample={sample_index}): {str(e)}")
-        return epsilon, sample_index, None, None
+        logging.error(f"Error processing task (epsilon={epsilon}, t_star={t_star}): {str(e)}")
+        return epsilon, t_star, None
 
 
 def write_results_to_csv(risk_burden, output_dir, case, epsilon, t_star):

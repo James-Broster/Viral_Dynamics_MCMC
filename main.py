@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import os
 import logging
 from src.utils.data_loading import load_data
@@ -8,11 +9,34 @@ from src.model.mcmc_fitting import ModelFitting
 from src.visualization.mcmc_diagnostics import MCMCDiagnostics
 from src.visualization.model_predictions import ModelPredictions
 from src.analysis.epidemiological_metrics import analyze_epidemiological_metrics
-from src.analysis.risk_burden import analyze_chains, calculate_and_plot_risk_burden, calculate_risk_burden_for_epsilon_tstar, calculate_risk_burden_sampled_tstar
+from src.analysis.risk_burden import analyze_chains, calculate_and_plot_risk_burden, calculate_risk_burden_for_epsilon_tstar, calculate_risk_burden_fixed_tstar
 from src.visualization.risk_burden_plots import RiskBurdenPlots
 from config.config import Config
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+
+
+def calculate_parameter_statistics(chains, burn_in_period):
+    processed_chains = chains[:, burn_in_period:, :]
+    flattened_chains = processed_chains.reshape(-1, processed_chains.shape[-1])
+    
+    medians = np.median(flattened_chains, axis=0)
+    ci_lower = np.percentile(flattened_chains, 2.5, axis=0)
+    ci_upper = np.percentile(flattened_chains, 97.5, axis=0)
+    
+    return medians, ci_lower, ci_upper
+
+def save_parameter_statistics(medians, ci_lower, ci_upper, param_names, output_path):
+    data = {
+        'Parameter': param_names,
+        'Median': medians,
+        'CI_Lower': ci_lower,
+        'CI_Upper': ci_upper
+    }
+    df = pd.DataFrame(data)
+    df.to_csv(output_path, index=False)
+    print(f"Parameter statistics saved to {output_path}")
 
 def main():
     config = Config()
@@ -33,10 +57,25 @@ def main():
         estimated_params_f, config.PARAM_STDS, is_fatal=True
     )
 
+
+    medians_f, ci_lower_f, ci_upper_f = calculate_parameter_statistics(chains_f, config.BURN_IN_PERIOD)
+    save_parameter_statistics(
+        medians_f, ci_lower_f, ci_upper_f, 
+        config.PARAM_NAMES,
+        os.path.join(directories['fatal_model_predictions'], 'parameters.csv')
+    )
+
     chains_nf, acceptance_rates_nf, r_hat_nf, acceptance_rates_over_time_nf = ModelFitting.execute_parallel_mcmc(
         observed_data_nf, time_nf, config.NUM_CHAINS, config.NUM_ITERATIONS, 
         config.BURN_IN_PERIOD, config.TRANSITION_PERIOD,
         estimated_params_nf, config.PARAM_STDS, is_fatal=False
+    )
+
+    medians_nf, ci_lower_nf, ci_upper_nf = calculate_parameter_statistics(chains_nf, config.BURN_IN_PERIOD)
+    save_parameter_statistics(
+        medians_nf, ci_lower_nf, ci_upper_nf, 
+        config.PARAM_NAMES,
+        os.path.join(directories['non_fatal_model_predictions'], 'parameters.csv')
     )
 
     # Plotting and analysis
@@ -81,9 +120,8 @@ def main():
             directories[f'{case_type}_treatment_effects']
         )
 
-        # Risk burden with sampled t_star
-        print(f"[DEBUG] Calculating risk burden with sampled t_star ({case_type})")
-        results_sampled_tstar, t_star_samples = calculate_risk_burden_sampled_tstar(
+        print(f"[DEBUG] Calculating risk burden with fixed t_star ({case_type})")
+        results_fixed_tstar, t_star_values, weights = calculate_risk_burden_fixed_tstar(
             chains, 
             config.ISOLATION_PERIODS, 
             time_extended, 
@@ -91,12 +129,13 @@ def main():
             debug_shapes,
             case_dir
         )
-        
-        print(f"[DEBUG] Plotting risk burden with sampled t_star ({case_type})")
-        RiskBurdenPlots.plot_risk_burden_sampled_tstar(
-            results_sampled_tstar, 
-            t_star_samples,
-            no_treatment_results,  # Add this line
+
+        print(f"[DEBUG] Plotting risk burden with fixed t_star ({case_type})")
+        RiskBurdenPlots.plot_risk_burden_fixed_tstar(
+            results_fixed_tstar, 
+            t_star_values,
+            weights,
+            no_treatment_results,
             case_type, 
             directories[f'{case_type}_treatment_effects']
         )

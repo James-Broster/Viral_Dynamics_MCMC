@@ -7,6 +7,7 @@ from config.config import Config
 from src.model.virus_model import cached_solve
 
 class ModelFitting:
+
     @staticmethod
     def calculate_log_likelihood(parameters, time, observed_data, sigma):
         model_data = cached_solve(parameters, time)
@@ -15,6 +16,9 @@ class ModelFitting:
         n = len(observed_data)
         log_likelihood = -0.5 * (n * np.log(2 * np.pi * sigma**2) + np.sum(residuals**2) / sigma**2)
         return log_likelihood
+    
+
+
 
     @staticmethod
     def calculate_model_error(parameters, time, observed_data):
@@ -22,10 +26,12 @@ class ModelFitting:
         model_log_virusload = model_data[:, 2].reshape(-1, 1)
         residuals = observed_data - model_log_virusload
         error = np.sqrt(np.mean(residuals**2))
-        if np.isnan(error):
-            print(f"NaN error detected. Parameters: {parameters}")
-            error = 1e10  # Set a large error only if NaN
+
+
+
         return error
+    
+
 
     @staticmethod
     def propose_new_parameters(current_parameters):
@@ -39,12 +45,15 @@ class ModelFitting:
                 if lower <= proposal <= upper:
                     proposed_parameters[j] = proposal
                     break
+
         return proposed_parameters
 
     @staticmethod
     def calculate_log_prior(parameters, param_means, param_stds):
         log_prior = 0
         for j, param_name in enumerate(Config.PARAM_NAMES):
+
+            
             log_prior += norm.logpdf(parameters[j], loc=param_means[j], scale=param_stds[j])
         return log_prior
 
@@ -89,6 +98,8 @@ class ModelFitting:
 
         final_acceptance_rates = acceptance_counts / total_proposals
         return parameter_values, final_acceptance_rates, np.array(acceptance_rates_over_time)
+    
+
 
     @staticmethod
     def print_iteration_info(chain_id, iteration, num_iterations, log_acceptance_ratio, acceptance_rates, current_parameters, proposed_parameters, current_sigma):
@@ -100,10 +111,12 @@ class ModelFitting:
         print(f"Proposed Parameters: {proposed_parameters}")
         print(f"Acceptance Rates: {acceptance_rates}")
 
+
+
     @staticmethod
     def calculate_rhat(chains):
-        n = chains.shape[1]  # number of iterations
-        m = chains.shape[0]  # number of chains
+        n = chains.shape[1]  # iiterations
+        m = chains.shape[0]  #chains (4)
         
         B = n * np.var(np.mean(chains, axis=1), axis=0)
         W = np.mean(np.var(chains, axis=1), axis=0)
@@ -111,6 +124,8 @@ class ModelFitting:
         
         R_hat = np.sqrt(V / W)
         return R_hat
+    
+
 
     @staticmethod
     def execute_parallel_mcmc(data, time, num_chains, num_iterations, burn_in_period, transition_period, param_means, param_stds, is_fatal):
@@ -137,10 +152,15 @@ class ModelFitting:
         
         return chains, np.array(acceptance_rates), r_hat, acceptance_rates_over_time
 
+
+
+    #dont need this was jus for checking early on buit whatver
     @staticmethod
     def calculate_correlations(chains):
         flattened_chains = chains.reshape(-1, chains.shape[-1])
         return np.corrcoef(flattened_chains.T)
+
+
 
     @staticmethod
     def calculate_ess(chain):
@@ -163,6 +183,8 @@ class ModelFitting:
         ess = n / (1 + 2 * np.sum(rho_hat_t[1:tau]))
         
         return ess
+
+
 
     @staticmethod
     def calculate_multichain_ess(chains):
