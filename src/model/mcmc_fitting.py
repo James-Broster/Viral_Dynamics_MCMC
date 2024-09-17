@@ -194,3 +194,6 @@ class ModelFitting:
             combined_chain = chains[:, :, i].flatten()
             ess_values[i] = ModelFitting.calculate_ess(combined_chain)
         return ess_values
+    
+
+

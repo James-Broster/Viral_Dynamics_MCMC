@@ -4,6 +4,7 @@ import numpy as np
 import os
 from scipy.stats import truncnorm
 from config.config import Config
+import pandas as pd
 
 class MCMCDiagnostics:
 
@@ -72,6 +73,7 @@ class MCMCDiagnostics:
 
     @staticmethod
     def plot_rhat(r_hat, param_names, output_dir, case):
+        # Existing plotting code
         plt.figure(figsize=(10, 6))
         plt.rcParams.update({'font.size': 12})  # Increase default font size
         plt.bar(param_names, r_hat)
@@ -83,6 +85,12 @@ class MCMCDiagnostics:
         plt.tight_layout()
         plt.savefig(os.path.join(output_dir, f'rhat_plot_{case}.png'), dpi=300, bbox_inches='tight')
         plt.close()
+
+        # Save R-hat values to CSV
+        rhat_df = pd.DataFrame({'Parameter': param_names, 'R-hat': r_hat})
+        csv_path = os.path.join(output_dir, f'rhat_values_{case}.csv')
+        rhat_df.to_csv(csv_path, index=False)
+        print(f"R-hat values saved to {csv_path}")
 
     @staticmethod
     def plot_correlation_heatmap(correlations, param_names, output_dir, case):
