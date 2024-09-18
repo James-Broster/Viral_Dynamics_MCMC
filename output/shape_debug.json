@@ -1,0 +1,32 @@
+{
+  "initial": {
+    "chains_f": [
+      4,
+      60001,
+      6
+    ],
+    "chains_nf": [
+      4,
+      60001,
+      6
+    ]
+  },
+  "fatal_processed": [
+    4,
+    48001,
+    6
+  ],
+  "fatal_post_mcmc": [
+    4,
+    144003
+  ],
+  "non_fatal_processed": [
+    4,
+    48001,
+    6
+  ],
+  "non_fatal_post_mcmc": [
+    4,
+    144003
+  ]
+}
