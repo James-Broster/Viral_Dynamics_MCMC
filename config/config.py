@@ -23,7 +23,7 @@ class Config:
     }
 
     BASE_OUTPUT_DIR = os.path.join(os.getcwd(), 'output')
-    NUM_ITERATIONS = 60000
+    NUM_ITERATIONS = 2000
     BURN_IN_PERIOD = int(NUM_ITERATIONS * 0.2)
     TRANSITION_PERIOD = int(NUM_ITERATIONS * 0.3)
     NUM_CHAINS = 4
